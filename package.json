@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "compress:scene": "gltf-transform optimize public/models/car-and-scene-with-camera.glb public/models/scene-compressed.glb --compress draco",
+    "compress:models": "npm run compress:scene"
   },
   "repository": {
     "type": "git",
@@ -13,7 +17,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/lawattar/personal-portfolio-website/issues"
   },
@@ -21,5 +25,8 @@
   "dependencies": {
     "three": "^0.184.0",
     "vite": "^8.0.10"
+  },
+  "devDependencies": {
+    "@gltf-transform/cli": "^4.2.1"
   }
 }
