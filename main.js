@@ -3,7 +3,41 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 const canvas = document.querySelector("#scene");
+const loadingScreen = document.querySelector(".loading-screen");
 const audioToggleButton = document.querySelector(".audio-toggle");
+const brakeModeButton = document.querySelector('[data-light-mode="brake"]');
+const reverseModeButton = document.querySelector('[data-light-mode="reverse"]');
+
+// Loading screen controls.
+const loadingScreenEnabled = true;
+const loadingScreenMinDurationMs = 1000;
+const loadingScreenFadeDurationMs = 500;
+// Load-order optimization controls.
+const prioritizeSpinnerFirstPaint = true;
+const spinnerPaintDelayFrames = 2;
+const deferSecondaryEffectsUntilSceneReady = true;
+const precompileSceneBeforeReveal = true;
+
+let loadingSceneReady = !loadingScreenEnabled;
+let loadingMinDurationReached = !loadingScreenEnabled;
+
+const tryHideLoadingScreen = () => {
+  if (!loadingScreenEnabled || !loadingScreen) return;
+  if (!loadingSceneReady || !loadingMinDurationReached) return;
+  loadingScreen.classList.add("is-hidden");
+};
+
+if (loadingScreen) {
+  if (loadingScreenEnabled) {
+    loadingScreen.style.setProperty("--loading-fade-ms", `${loadingScreenFadeDurationMs}ms`);
+    window.setTimeout(() => {
+      loadingMinDurationReached = true;
+      tryHideLoadingScreen();
+    }, loadingScreenMinDurationMs);
+  } else {
+    loadingScreen.classList.add("is-hidden");
+  }
+}
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -26,8 +60,8 @@ scene.fog = new THREE.Fog("#040812", 25, 120);
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 2000);
 
 // Lighting intensity: adjust these for darker/brighter mood.
-const moonLight = new THREE.DirectionalLight("#f0f2f8ff", 2.25);
-moonLight.position.set(12, 5,50);
+const moonLight = new THREE.DirectionalLight("#f0f2f8ff", 2);
+moonLight.position.set(200, 100,0); //set(30, 10,-100); for front, and set(50, 20,200) for normal, .set(200, 100,0) for livery focus
 moonLight.castShadow = true;
 moonLight.shadow.mapSize.set(1024, 1024);
 moonLight.shadow.camera.near = 0.5;
@@ -44,6 +78,58 @@ scene.add(hemiLight);
 const ambientLight = new THREE.AmbientLight("#3f4f77", 0.3);
 scene.add(ambientLight);
 
+// Selective imported light controls (Blender punctual lights).
+// Active light mode at startup: "brake" or "reverse".
+const defaultLightMode = "brake";
+// Keep this false so only brake lights are active for now.
+const keepOtherImportedLights = false;
+// If keeping other imported lights, reduce them to avoid whitewashing.
+const otherImportedLightsIntensityMultiplier = 0.15;
+// Exact node names from Blender Outliner / GLB nodes.
+const brakeLightNodeNames = ["Brake Light Left", "Brake Light Right"];
+// Dim/localized brake glow controls (to avoid lighting the whole scene).
+const brakeLightColor = "#ff2c2c";
+const brakeLightIntensity = 4;
+const brakeLightDistance = 1.8; // Point/Spot only.
+const brakeLightDecay = 2.0; // Point/Spot only.
+const brakeLightCastShadow = false;
+
+// Reverse light controls.
+const reverseLightNodeNames = ["Reverse"];
+const reverseLightColor = "#d9ecff";
+const reverseLightIntensity = 2;
+const reverseLightDistance = 5; // Point/Spot only.
+const reverseLightDecay = 3; // Point/Spot only. Increase to increase spread.
+const reverseLightCastShadow = false;
+
+// Steering wheel LED point lights (by GLB light definition name).
+// These are independent of brake/reverse mode buttons.
+const steeringWheelLightsEnabled = true;
+const steeringLightDefinitionConfig = {
+  Point: {
+    enabled: true,
+    color: "#FF403A",
+    intensity: 0.25,
+    distance: 0.01, // Keep short to avoid scene spill.
+    decay: 1.0,
+  },
+  "Point.001": {
+    enabled: true,
+    color: "#FF73F6",
+    intensity: 0.25,
+    distance: 0.025,
+    decay: 1.0,
+  },
+  "Point.002": {
+    enabled: true,
+    color: "#636EFF",
+    intensity: 0.25,
+    distance: 0.025,
+    decay: 1.0,
+  },
+};
+const steeringLightCastShadow = false;
+
 const loader = new GLTFLoader();
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath("/draco/");
@@ -54,7 +140,7 @@ const cameraOffset = new THREE.Vector3(-.3, -.1, -1);
 // Camera rotation: offset from Blender camera (radians: x (up/down?), y , z (DONT TOUCH)).
 const cameraRotationOffset = new THREE.Euler(-.28, 0, 0);
 // Camera zoom: offset from Blender camera zoom (positive = zoom in, negative = zoom out).
-const cameraZoomOffset = -.075;
+const cameraZoomOffset = -.175;
 // Ultrawide framing controls (prevents scene from feeling too zoomed out horizontally).
 const ultrawideCompensationEnabled = true;
 const ultrawideReferenceAspect = 16 / 9;
@@ -135,6 +221,7 @@ const audioEnabled = true;
 const ambienceAudioEnabled = true;
 const ambienceAudioPath = "/audios/jci-21-rain-and-thunder-sfx-12820.mp3";
 const ambienceAudioVolume = 0.005;
+const ambienceAudioStartOffsetSeconds = 2;
 const randomThunderAudioEnabled = true;
 const randomThunderAudioPath = "/audios/mixkit-strong-close-thunder-explosion-1300.mp3";
 const randomThunderAudioVolume = 0.025;
@@ -172,15 +259,25 @@ const localCameraOffset = new THREE.Vector3();
 const worldCameraOffset = new THREE.Vector3();
 const cameraRotationOffsetQ = new THREE.Quaternion();
 const clock = new THREE.Clock();
+const brakeLightNodeSet = new Set(brakeLightNodeNames);
+const reverseLightNodeSet = new Set(reverseLightNodeNames);
 
 let rainSystem = null;
 let groundFogSystem = null;
+let secondaryEffectsStarted = false;
 const audioState = {
   ambience: null,
   thunder: null,
   nextThunderTimer: 0,
   pendingUserGesture: false,
   muted: false,
+};
+const lightModeState = {
+  mode: defaultLightMode,
+};
+const loadedSceneState = {
+  root: null,
+  gltf: null,
 };
 
 const baseLighting = {
@@ -218,15 +315,33 @@ const setAudioMuted = (muted) => {
   }
 };
 
-const createAudioTrack = (path, loop, volume) => {
+const seekAudioToOffset = (audio, offsetSeconds) => {
+  if (!(offsetSeconds > 0)) return;
+
+  const applyOffset = () => {
+    const duration = Number.isFinite(audio.duration) ? audio.duration : 0;
+    const maxSeek = duration > 0 ? Math.max(0, duration - 0.05) : offsetSeconds;
+    audio.currentTime = Math.max(0, Math.min(offsetSeconds, maxSeek));
+  };
+
+  if (audio.readyState >= 1) {
+    applyOffset();
+    return;
+  }
+
+  audio.addEventListener("loadedmetadata", applyOffset, { once: true });
+};
+
+const createAudioTrack = (path, loop, volume, startOffsetSeconds = 0) => {
   const audio = new Audio(path);
   audio.preload = "auto";
-  audio.loop = loop;
+  audio.loop = false;
   audio.volume = THREE.MathUtils.clamp(volume, 0, 1);
   audio.muted = audioState.muted;
+  seekAudioToOffset(audio, startOffsetSeconds);
   if (loop) {
     audio.addEventListener("ended", () => {
-      audio.currentTime = 0;
+      seekAudioToOffset(audio, startOffsetSeconds);
       audio.play().catch(() => {
         // Ignore playback failures caused by browser autoplay policies.
       });
@@ -249,6 +364,7 @@ const removeAudioGestureHandlers = () => {
 
 const tryStartAmbienceAfterGesture = () => {
   if (!audioEnabled || !audioState.pendingUserGesture || !audioState.ambience) return;
+  seekAudioToOffset(audioState.ambience, ambienceAudioStartOffsetSeconds);
   const playPromise = audioState.ambience.play();
   if (!playPromise || typeof playPromise.then !== "function") {
     audioState.pendingUserGesture = false;
@@ -274,7 +390,13 @@ const initAudio = () => {
   }
 
   if (ambienceAudioEnabled) {
-    audioState.ambience = createAudioTrack(ambienceAudioPath, true, ambienceAudioVolume);
+    audioState.ambience = createAudioTrack(
+      ambienceAudioPath,
+      true,
+      ambienceAudioVolume,
+      ambienceAudioStartOffsetSeconds,
+    );
+    seekAudioToOffset(audioState.ambience, ambienceAudioStartOffsetSeconds);
     const playPromise = audioState.ambience.play();
     if (playPromise && typeof playPromise.then === "function") {
       playPromise
@@ -321,6 +443,31 @@ const updateAudio = (deltaSeconds) => {
   scheduleNextThunderSound();
 };
 
+const startSecondaryEffects = () => {
+  if (secondaryEffectsStarted) return;
+  secondaryEffectsStarted = true;
+  createRain();
+  createGroundFog();
+  initAudio();
+};
+
+const scheduleSecondaryEffectsStart = () => {
+  if (!deferSecondaryEffectsUntilSceneReady) {
+    startSecondaryEffects();
+    return;
+  }
+
+  const start = () => {
+    startSecondaryEffects();
+  };
+
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(start, { timeout: 1200 });
+  } else {
+    window.setTimeout(start, 0);
+  }
+};
+
 const updatePointer = (clientX, clientY) => {
   pointerTarget.x = (clientX / window.innerWidth - 0.5) * 2;
   pointerTarget.y = (clientY / window.innerHeight - 0.5) * 2;
@@ -340,18 +487,213 @@ window.addEventListener(
   { passive: true },
 );
 
-const removeImportedLightsAndSetupShadows = (root) => {
-  const lights = [];
+const updateLightModeButtons = () => {
+  if (brakeModeButton) {
+    const isActive = lightModeState.mode === "brake";
+    brakeModeButton.dataset.active = isActive ? "true" : "false";
+    brakeModeButton.setAttribute("aria-pressed", isActive ? "true" : "false");
+  }
+
+  if (reverseModeButton) {
+    const isActive = lightModeState.mode === "reverse";
+    reverseModeButton.dataset.active = isActive ? "true" : "false";
+    reverseModeButton.setAttribute("aria-pressed", isActive ? "true" : "false");
+  }
+};
+
+const setLightMode = (nextMode) => {
+  if (nextMode !== "brake" && nextMode !== "reverse") return;
+  if (lightModeState.mode === nextMode) return;
+
+  lightModeState.mode = nextMode;
+  updateLightModeButtons();
+
+  if (loadedSceneState.root && loadedSceneState.gltf) {
+    setupImportedLightsAndShadows(loadedSceneState.root, loadedSceneState.gltf);
+  }
+};
+
+if (brakeModeButton) {
+  brakeModeButton.addEventListener("click", () => {
+    setLightMode("brake");
+  });
+}
+
+if (reverseModeButton) {
+  reverseModeButton.addEventListener("click", () => {
+    setLightMode("reverse");
+  });
+}
+
+updateLightModeButtons();
+
+const getLightSourceNodeInfo = (lightObject, gltf) => {
+  const association = gltf.parser.associations.get(lightObject);
+  const nodeIndex = association?.nodes;
+  const nodeDef = nodeIndex !== undefined ? gltf.parser.json?.nodes?.[nodeIndex] : null;
+  const sourceNodeName = nodeDef?.name || lightObject.name || null;
+  const lightIndex = nodeDef?.extensions?.KHR_lights_punctual?.light;
+  const lightDefinitionName = lightIndex !== undefined
+    ? gltf.parser.json?.extensions?.KHR_lights_punctual?.lights?.[lightIndex]?.name ?? null
+    : null;
+
+  return { sourceNodeName, lightDefinitionName };
+};
+
+const setupImportedLightsAndShadows = (root, gltf) => {
+  const foundBrakeLights = new Set();
+  const foundReverseLights = new Set();
+  const foundSteeringLightDefs = new Set();
+  const importedLights = [];
+  const importedLightSourceNames = new Set();
+  const importedLightDefinitionNames = new Set();
+  const isBrakeMode = lightModeState.mode === "brake";
+  const isReverseMode = lightModeState.mode === "reverse";
+
   root.traverse((obj) => {
-    if (obj.isLight) lights.push(obj);
     if (obj.isMesh) {
       obj.castShadow = true;
       obj.receiveShadow = true;
     }
+
+    if (!obj.isLight) return;
+    importedLights.push(obj);
   });
 
-  for (const light of lights) {
-    light.parent?.remove(light);
+  for (const obj of importedLights) {
+    if (!obj.userData.baseImportedLightState) {
+      obj.userData.baseImportedLightState = {
+        intensity: obj.intensity,
+        color: obj.color.clone(),
+        distance: obj.distance,
+        decay: obj.decay,
+        castShadow: obj.castShadow,
+      };
+    }
+    const baseState = obj.userData.baseImportedLightState;
+
+    const { sourceNodeName, lightDefinitionName } = getLightSourceNodeInfo(obj, gltf);
+    if (sourceNodeName) importedLightSourceNames.add(sourceNodeName);
+    if (lightDefinitionName) importedLightDefinitionNames.add(lightDefinitionName);
+
+    const isBrakeLight = sourceNodeName ? brakeLightNodeSet.has(sourceNodeName) : brakeLightNodeSet.has(obj.name);
+    const isReverseLight = sourceNodeName ? reverseLightNodeSet.has(sourceNodeName) : reverseLightNodeSet.has(obj.name);
+    const steeringConfig = lightDefinitionName ? steeringLightDefinitionConfig[lightDefinitionName] : null;
+    const isSteeringLight = Boolean(steeringWheelLightsEnabled && steeringConfig?.enabled);
+    if (isBrakeLight) {
+      foundBrakeLights.add(sourceNodeName ?? obj.name);
+    }
+    if (isReverseLight) {
+      foundReverseLights.add(sourceNodeName ?? obj.name);
+    }
+    if (isSteeringLight && lightDefinitionName) {
+      foundSteeringLightDefs.add(lightDefinitionName);
+    }
+
+    const isSelectedBrakeLight = isBrakeMode && isBrakeLight;
+    const isSelectedReverseLight = isReverseMode && isReverseLight;
+    const isSelectedSteeringLight = isSteeringLight;
+    const isSelectedSpecialLight = isSelectedBrakeLight || isSelectedReverseLight || isSelectedSteeringLight;
+
+    // Keep imported lights visible at all times to avoid shader recompiles
+    // when switching modes. We gate contribution using intensity instead.
+    obj.visible = true;
+
+    if (!isSelectedSpecialLight && !keepOtherImportedLights) {
+      obj.color.copy(baseState.color);
+      obj.intensity = 0;
+      if (obj.isPointLight || obj.isSpotLight) {
+        obj.distance = baseState.distance;
+        obj.decay = baseState.decay;
+      }
+      obj.castShadow = false;
+      continue;
+    }
+
+    if (!isSelectedSpecialLight) {
+      obj.color.copy(baseState.color);
+      obj.intensity = baseState.intensity * otherImportedLightsIntensityMultiplier;
+      if (obj.isPointLight || obj.isSpotLight) {
+        obj.distance = baseState.distance;
+        obj.decay = baseState.decay;
+      }
+      obj.castShadow = baseState.castShadow;
+      continue;
+    }
+
+    if (isSelectedBrakeLight) {
+      // Force a subtle red brake-light look.
+      obj.color.set(brakeLightColor);
+      obj.intensity = brakeLightIntensity;
+      if (obj.isPointLight || obj.isSpotLight) {
+        obj.distance = brakeLightDistance;
+        obj.decay = brakeLightDecay;
+      }
+      obj.castShadow = brakeLightCastShadow;
+      continue;
+    }
+
+    if (isSelectedReverseLight) {
+      // Reverse light look (cool white by default).
+      obj.color.set(reverseLightColor);
+      obj.intensity = reverseLightIntensity;
+      if (obj.isPointLight || obj.isSpotLight) {
+        obj.distance = reverseLightDistance;
+        obj.decay = reverseLightDecay;
+      }
+      obj.castShadow = reverseLightCastShadow;
+      continue;
+    }
+
+    if (isSelectedSteeringLight && steeringConfig) {
+      // Steering wheel LED point lights (short-range to avoid scene spill).
+      obj.color.set(steeringConfig.color);
+      obj.intensity = steeringConfig.intensity;
+      if (obj.isPointLight || obj.isSpotLight) {
+        obj.distance = steeringConfig.distance;
+        obj.decay = steeringConfig.decay;
+      }
+      obj.castShadow = steeringLightCastShadow;
+    }
+  }
+
+  if (isBrakeMode) {
+    const missingBrakeLights = brakeLightNodeNames.filter((name) => !foundBrakeLights.has(name));
+    if (missingBrakeLights.length > 0) {
+      console.warn("Missing brake light nodes in GLB:", missingBrakeLights.join(", "));
+      console.warn(
+        "Imported light source nodes found:",
+        Array.from(importedLightSourceNames).sort().join(", "),
+      );
+      console.warn("After changing brake light names/toggles, refresh the page.");
+    }
+  }
+
+  if (isReverseMode) {
+    const missingReverseLights = reverseLightNodeNames.filter((name) => !foundReverseLights.has(name));
+    if (missingReverseLights.length > 0) {
+      console.warn("Missing reverse light nodes in GLB:", missingReverseLights.join(", "));
+      console.warn(
+        "Imported light source nodes found:",
+        Array.from(importedLightSourceNames).sort().join(", "),
+      );
+      console.warn("After changing reverse light names/toggles, refresh the page.");
+    }
+  }
+
+  if (steeringWheelLightsEnabled) {
+    const enabledSteeringDefs = Object.entries(steeringLightDefinitionConfig)
+      .filter(([, config]) => config.enabled)
+      .map(([defName]) => defName);
+    const missingSteeringDefs = enabledSteeringDefs.filter((defName) => !foundSteeringLightDefs.has(defName));
+    if (missingSteeringDefs.length > 0) {
+      console.warn("Missing steering light definitions in GLB:", missingSteeringDefs.join(", "));
+      console.warn(
+        "Imported light definitions found:",
+        Array.from(importedLightDefinitionNames).sort().join(", "),
+      );
+      console.warn("After changing steering light settings, refresh the page.");
+    }
   }
 };
 
@@ -699,7 +1041,9 @@ const loadScene = async () => {
   const gltf = await loader.loadAsync("/models/scene-compressed.glb");
   const root = gltf.scene;
 
-  removeImportedLightsAndSetupShadows(root);
+  loadedSceneState.root = root;
+  loadedSceneState.gltf = gltf;
+  setupImportedLightsAndShadows(root, gltf);
   applyNamedTransformOffset(root, carNodeName, carTransformOffset, "Car");
   applyNamedTransformOffset(root, forestNodeName, forestTransformOffset, "Forest");
   scene.add(root);
@@ -713,6 +1057,10 @@ const loadScene = async () => {
 
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
+
+  if (precompileSceneBeforeReveal && typeof renderer.compileAsync === "function") {
+    await renderer.compileAsync(scene, camera);
+  }
 };
 
 const onResize = () => {
@@ -760,14 +1108,46 @@ const animate = () => {
 };
 
 renderer.setAnimationLoop(animate);
-createRain();
-createGroundFog();
-initAudio();
 
-loadScene()
-  .catch((error) => {
-    console.error("Failed to load /models/scene-compressed.glb:", error);
-  })
-  .finally(() => {
-    dracoLoader.dispose();
-  });
+if (!deferSecondaryEffectsUntilSceneReady) {
+  startSecondaryEffects();
+}
+
+const runAfterAnimationFrames = (frameCount, callback) => {
+  const frames = Math.max(0, frameCount);
+  if (frames === 0) {
+    callback();
+    return;
+  }
+
+  let remaining = frames;
+  const step = () => {
+    remaining -= 1;
+    if (remaining <= 0) {
+      callback();
+      return;
+    }
+    window.requestAnimationFrame(step);
+  };
+
+  window.requestAnimationFrame(step);
+};
+
+const beginSceneLoad = () => {
+  loadScene()
+    .catch((error) => {
+      console.error("Failed to load /models/scene-compressed.glb:", error);
+    })
+    .finally(() => {
+      loadingSceneReady = true;
+      tryHideLoadingScreen();
+      scheduleSecondaryEffectsStart();
+      dracoLoader.dispose();
+    });
+};
+
+if (prioritizeSpinnerFirstPaint) {
+  runAfterAnimationFrames(spinnerPaintDelayFrames, beginSceneLoad);
+} else {
+  beginSceneLoad();
+}

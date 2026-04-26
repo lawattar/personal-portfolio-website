@@ -8,6 +8,10 @@
   </head>
   <body>
     <canvas id="scene"></canvas>
+    <div class="loading-screen" aria-live="polite" aria-label="Loading scene">
+      <div class="loading-dial" aria-hidden="true"></div>
+      <div class="loading-label">loading...</div>
+    </div>
 
     <div class="overlay">
       <header class="top-bar">
@@ -96,24 +100,47 @@
       </section>
     </div>
 
-    <button
-      class="audio-toggle"
-      type="button"
-      aria-label="Mute audio"
-      title="Mute audio"
-      data-muted="false"
-    >
-      <svg class="icon-unmuted" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M10.2 6.1a1 1 0 0 1 1.7.7v10.4a1 1 0 0 1-1.7.7L6.7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.7l3.5-3.4zM15 9.2a1 1 0 0 1 1.4 0 3.95 3.95 0 0 1 0 5.6 1 1 0 1 1-1.4-1.4 1.95 1.95 0 0 0 0-2.8 1 1 0 0 1 0-1.4zM17.8 6.4a1 1 0 0 1 1.4 0 7.96 7.96 0 0 1 0 11.2 1 1 0 1 1-1.4-1.4 5.96 5.96 0 0 0 0-8.4 1 1 0 0 1 0-1.4z"
-        />
-      </svg>
-      <svg class="icon-muted" viewBox="0 0 24 24" aria-hidden="true">
-        <path
-          d="M10.2 6.1a1 1 0 0 1 1.7.7v10.4a1 1 0 0 1-1.7.7L6.7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.7l3.5-3.4zM15.1 9.1a1 1 0 0 1 1.4 0l1.5 1.5 1.5-1.5a1 1 0 1 1 1.4 1.4L19.4 12l1.5 1.5a1 1 0 1 1-1.4 1.4L18 13.4l-1.5 1.5a1 1 0 1 1-1.4-1.4l1.5-1.5-1.5-1.5a1 1 0 0 1 0-1.4z"
-        />
-      </svg>
-    </button>
+    <div class="bottom-controls" aria-label="Light and audio controls">
+      <button
+        class="light-mode-button"
+        type="button"
+        data-light-mode="brake"
+        data-active="true"
+        aria-pressed="true"
+        title="Brake lights mode"
+      >
+        Brake
+      </button>
+      <button
+        class="light-mode-button"
+        type="button"
+        data-light-mode="reverse"
+        data-active="false"
+        aria-pressed="false"
+        title="Reverse light mode"
+      >
+        Reverse
+      </button>
+
+      <button
+        class="audio-toggle"
+        type="button"
+        aria-label="Mute audio"
+        title="Mute audio"
+        data-muted="false"
+      >
+        <svg class="icon-unmuted" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M10.2 6.1a1 1 0 0 1 1.7.7v10.4a1 1 0 0 1-1.7.7L6.7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.7l3.5-3.4zM15 9.2a1 1 0 0 1 1.4 0 3.95 3.95 0 0 1 0 5.6 1 1 0 1 1-1.4-1.4 1.95 1.95 0 0 0 0-2.8 1 1 0 0 1 0-1.4zM17.8 6.4a1 1 0 0 1 1.4 0 7.96 7.96 0 0 1 0 11.2 1 1 0 1 1-1.4-1.4 5.96 5.96 0 0 0 0-8.4 1 1 0 0 1 0-1.4z"
+          />
+        </svg>
+        <svg class="icon-muted" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M10.2 6.1a1 1 0 0 1 1.7.7v10.4a1 1 0 0 1-1.7.7L6.7 14.5H4a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h2.7l3.5-3.4zM15.1 9.1a1 1 0 0 1 1.4 0l1.5 1.5 1.5-1.5a1 1 0 1 1 1.4 1.4L19.4 12l1.5 1.5a1 1 0 1 1-1.4 1.4L18 13.4l-1.5 1.5a1 1 0 1 1-1.4-1.4l1.5-1.5-1.5-1.5a1 1 0 0 1 0-1.4z"
+          />
+        </svg>
+      </button>
+    </div>
 
     <script type="module" src="/main.js"></script>
   </body>

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "compress:scene": "gltf-transform optimize public/models/car-and-scene-with-camera.glb public/models/scene-compressed.glb --compress draco",
+    "compress:scene": "gltf-transform optimize \"public/models/car and scene combined with camera3.glb\" public/models/scene-compressed.glb --compress draco",
     "compress:models": "npm run compress:scene"
   },
   "repository": {
