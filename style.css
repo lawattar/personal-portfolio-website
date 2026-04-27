@@ -320,6 +320,10 @@ body {
   gap: 0.72rem;
 }
 
+.action-buttons-secondary {
+  margin-top: 0.56rem;
+}
+
 .resume-button {
   margin-top: 0;
   width: fit-content;
@@ -343,6 +347,11 @@ body {
 .projects-button {
   background: linear-gradient(180deg, rgba(140, 164, 219, 0.18), rgba(86, 108, 156, 0.2));
   box-shadow: 0 0 16px rgba(102, 139, 214, 0.25);
+}
+
+.secondary-action-button {
+  background: linear-gradient(180deg, rgba(132, 155, 206, 0.16), rgba(72, 94, 142, 0.18));
+  box-shadow: 0 0 12px rgba(98, 132, 201, 0.2);
 }
 
 .resume-button:hover,
