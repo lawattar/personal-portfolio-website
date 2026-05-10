@@ -61,6 +61,40 @@ const projectsByTab = {
       tags: ["Aerospace", "Systems", "Design"],
     },
   ],
+  baja: [
+    {
+      key: "baja-sae-motion-sim",
+      title: "BAJA SAE Motion Sim",
+      image: "/images/projects/baja-motion-sim.svg",
+      description:
+        "Motion platform and simulation workflow for driver training and system validation using vehicle dynamics and control tuning.",
+      tags: ["Simulation", "Controls", "Testing"],
+    },
+    {
+      key: "sr26-steering-wheel",
+      title: "SR26 Steering Wheel",
+      image: "/images/projects/sr26-steering-wheel.svg",
+      description:
+        "Next-generation wheel architecture focused on packaging efficiency, improved controls, and cleaner manufacturing flow.",
+      tags: ["Design", "DFM", "Revision"],
+    },
+    {
+      key: "sr25-steering-wheel",
+      title: "SR25 Steering Wheel",
+      image: "/images/projects/sr25-steering-wheel.svg",
+      description:
+        "Complete steering wheel package: ergonomic layout, button mapping, electronics integration, and iterative enclosure design.",
+      tags: ["Mechanical", "CAD", "Embedded"],
+    },
+    {
+      key: "cwru-motorsports-led-sign",
+      title: "CWRU Motorsports LED Sign",
+      image: "/images/projects/cwru-led-sign.svg",
+      description:
+        "Custom LED branding fixture with enclosure design, mounting strategy, and clean wiring approach for event display.",
+      tags: ["Electrical", "Fabrication", "Branding"],
+    },
+  ],
   mechanical: [
     {
       key: "cwru-motorsports-led-sign",
