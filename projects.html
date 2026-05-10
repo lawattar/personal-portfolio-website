@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects | Laith Wattar</title>
+    <link rel="stylesheet" href="/projects.css" />
+  </head>
+  <body>
+    <div class="projects-shell">
+      <header class="projects-top">
+        <a class="projects-brand" href="/index.html">LAITH WATTAR</a>
+        <nav class="projects-top-nav" aria-label="Projects page navigation">
+          <a href="/index.html">Home</a>
+          <a href="/resume.pdf" download>Resume</a>
+        </nav>
+      </header>
+
+      <section class="projects-hero">
+        <p class="projects-kicker">Portfolio</p>
+        <h1>Project Library</h1>
+        <p>
+          Organized into tabs so you can browse quickly without one giant page. Cards fade in as
+          you scroll, with room for photos, videos, and deeper writeups.
+        </p>
+      </section>
+
+      <section class="projects-tabs-wrap" aria-label="Project categories">
+        <div class="projects-tabs" role="tablist" aria-label="Project tabs">
+          <button class="projects-tab is-active" role="tab" aria-selected="true" data-tab="featured">
+            Featured
+          </button>
+          <button class="projects-tab" role="tab" aria-selected="false" data-tab="mechanical">
+            Mechanical
+          </button>
+          <button class="projects-tab" role="tab" aria-selected="false" data-tab="coding">
+            Coding
+          </button>
+          <button class="projects-tab" role="tab" aria-selected="false" data-tab="experience">
+            Experience
+          </button>
+          <button class="projects-tab" role="tab" aria-selected="false" data-tab="athletics">
+            Athletics
+          </button>
+        </div>
+      </section>
+
+      <main class="projects-panels">
+        <section class="projects-panel is-active" data-panel="featured" role="tabpanel"></section>
+        <section class="projects-panel" data-panel="mechanical" role="tabpanel"></section>
+        <section class="projects-panel" data-panel="coding" role="tabpanel"></section>
+        <section class="projects-panel" data-panel="experience" role="tabpanel"></section>
+        <section class="projects-panel" data-panel="athletics" role="tabpanel"></section>
+      </main>
+    </div>
+
+    <script type="module" src="/projects.js"></script>
+  </body>
+</html>
