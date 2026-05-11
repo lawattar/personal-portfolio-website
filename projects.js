@@ -1,5 +1,12 @@
 const tabButtons = Array.from(document.querySelectorAll(".projects-tab"));
 const tabPanels = Array.from(document.querySelectorAll(".projects-panel"));
+const bajaShowcase = document.querySelector('[data-baja-showcase="true"]');
+const bajaShowcaseCurrentImage = document.querySelector(".baja-showcase-image-current");
+const bajaShowcaseNextImage = document.querySelector(".baja-showcase-image-next");
+const bajaShowcaseEmpty = document.querySelector(".baja-showcase-empty");
+const bajaShowcasePrevButton = document.querySelector(".baja-showcase-arrow-prev");
+const bajaShowcaseNextButton = document.querySelector(".baja-showcase-arrow-next");
+const bajaShowcaseDots = document.querySelector(".baja-showcase-dots");
 
 const projectsByTab = {
   featured: [
@@ -162,7 +169,7 @@ const projectsByTab = {
     },
     {
       key: "food-bank",
-      title: "Food Bank",
+      title: "CWRU Food Pantry",
       image: "/images/projects/food-bank.svg",
       description: "Food distribution and support initiatives for local communities.",
       tags: ["Community", "Logistics", "Volunteer"],
@@ -184,18 +191,27 @@ const projectsByTab = {
   ],
   athletics: [
     {
-      key: "rugby",
-      title: "Rugby",
-      image: "/images/projects/rugby.svg",
-      description: "Been on the CWRU Rugby Team for three years.",
-      tags: ["CWRU", "Rugby", "Teamwork"],
+      key: "lifting",
+      title: "Lifting",
+      image: "/images/projects/athletics.svg",
+      description: "Training highlights, lifting sessions, and event media.",
+      tags: ["Strength", "Training", "Performance"],
     },
+  ],
+  leadership: [
     {
       key: "cwru-lifts",
       title: "CWRU Lifts",
       image: "/images/projects/cwru-lifts.svg",
       description: "Lifting events, competition videos, and promotional flyers.",
       tags: ["Lifting", "Events", "Media"],
+    },
+    {
+      key: "msa",
+      title: "MSA",
+      image: "/images/projects/volunteering.svg",
+      description: "Leadership and community programming through MSA initiatives.",
+      tags: ["Leadership", "Community", "Organization"],
     },
   ],
 };
@@ -236,7 +252,7 @@ const projectDetails = {
     slides: [
       {
         type: "embed",
-        src: "https://www.youtube.com/embed/-549WYZ5cbQ?rel=0",
+        src: "https://www.youtube.com/embed/-549WYZ5cbQ?rel=0&vq=hd720",
         caption: "BAJA SAE Motion Sim demo video",
       },
     ],
@@ -306,10 +322,20 @@ const projectDetails = {
     points: ["CWRU rugby timeline", "Training and match clips", "Role and growth"],
     mediaFolder: "rugby",
   },
+  lifting: {
+    summary: "Lifting training progression, events, and competition prep.",
+    points: ["Training blocks", "Event preparation", "Performance milestones"],
+    mediaFolder: "lifting",
+  },
   "cwru-lifts": {
     summary: "CWRU lifts events, media, and flyer design work.",
     points: ["Event photos", "Competition videos", "Flyer and promo design"],
     mediaFolder: "cwru-lifts",
+  },
+  msa: {
+    summary: "MSA leadership activities, events, and community coordination.",
+    points: ["Event planning", "Team coordination", "Community engagement"],
+    mediaFolder: "msa",
   },
 };
 
@@ -323,8 +349,46 @@ const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg"];
 const VIDEO_EXTENSIONS = ["mp4", "webm", "mov"];
 const MAX_AUTO_SLIDES = 16;
 const MAX_MISSES_BEFORE_STOP = 3;
+const BAJA_SHOWCASE_FOLDER = "baja-gallery";
+const CARD_PREVIEW_SUBFOLDER = "preview";
+const CARD_SLIDES_SUBFOLDER = "slides";
+const BAJA_SHOWCASE_MAX_SLIDES = 40;
+const BAJA_SHOWCASE_MAX_MISSES = 5;
+const BAJA_SHOWCASE_INTERVAL_MS = 5000;
+const BAJA_SHOWCASE_SLIDE_MS = 1000;
+const BAJA_SHOWCASE_SLIDE_EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
+const CARD_PREVIEW_ROOT_MARGIN = "0px 0px 260px 0px";
+
+// Code-only card visibility controls by tab.
+// Set a project key to false to hide that card from the tab.
+// Example:
+// featured: { "sr26-steering-wheel": false }
+const CARD_VISIBILITY_CONFIG = {
+  featured: {},
+  baja: {},
+  mechanical: {},
+  coding: {},
+  experience: { volunteering: false },
+  athletics: {},
+  leadership: {},
+};
 
 const projectIndex = new Map();
+const cardVisibilityByTab = new Map();
+let portfolioImagesManifest = null;
+let portfolioImagesManifestPromise = null;
+const projectPreviewSourceCache = new Map();
+const projectPreviewSourcePromiseCache = new Map();
+let cardPreviewObserver = null;
+const bajaShowcaseState = {
+  slides: [],
+  index: 0,
+  timerId: null,
+  initialized: false,
+  loading: false,
+  isSliding: false,
+  slideToken: 0,
+};
 
 const createProjectCard = (project) => {
   const card = document.createElement("article");
@@ -356,11 +420,51 @@ const createProjectCard = (project) => {
   return card;
 };
 
+const getUniqueProjectsForTab = (tabKey) => {
+  const projects = projectsByTab[tabKey] ?? [];
+  const seenKeys = new Set();
+  return projects.filter((project) => {
+    if (!project?.key || seenKeys.has(project.key)) return false;
+    seenKeys.add(project.key);
+    return true;
+  });
+};
+
+const ensureTabVisibilityMap = (tabKey) => {
+  if (!cardVisibilityByTab.has(tabKey)) {
+    cardVisibilityByTab.set(tabKey, new Map());
+  }
+
+  const visibilityMap = cardVisibilityByTab.get(tabKey);
+  const configForTab = CARD_VISIBILITY_CONFIG[tabKey] ?? {};
+  getUniqueProjectsForTab(tabKey).forEach((project) => {
+    if (!visibilityMap.has(project.key)) {
+      visibilityMap.set(project.key, configForTab[project.key] !== false);
+    }
+  });
+
+  return visibilityMap;
+};
+
+const applyCardVisibilityForTab = (tabKey) => {
+  const panel = tabPanels.find((candidatePanel) => candidatePanel.dataset.panel === tabKey);
+  if (!panel) return;
+
+  const visibilityMap = ensureTabVisibilityMap(tabKey);
+  panel.querySelectorAll(".project-card").forEach((card) => {
+    const projectKey = card.getAttribute("data-project-key");
+    const isVisible = projectKey ? visibilityMap.get(projectKey) !== false : true;
+    card.style.display = isVisible ? "" : "none";
+    card.setAttribute("data-card-visible", isVisible ? "true" : "false");
+  });
+};
+
 const renderPanels = () => {
   for (const panel of tabPanels) {
     const tabKey = panel.dataset.panel;
     const projects = projectsByTab[tabKey] ?? [];
     panel.innerHTML = "";
+    ensureTabVisibilityMap(tabKey);
 
     const grid = document.createElement("div");
     grid.className = "projects-grid";
@@ -390,6 +494,264 @@ const refreshRevealTargets = () => {
   activePanel.querySelectorAll(".reveal").forEach((node) => revealObserver.observe(node));
 };
 
+const ensureCardPreviewObserver = () => {
+  if (cardPreviewObserver) return cardPreviewObserver;
+
+  cardPreviewObserver = new IntersectionObserver(
+    (entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const card = entry.target;
+        observer.unobserve(card);
+        loadCardPreviewForCard(card);
+      });
+    },
+    { root: null, rootMargin: CARD_PREVIEW_ROOT_MARGIN, threshold: 0.01 },
+  );
+
+  return cardPreviewObserver;
+};
+
+const stopBajaShowcase = () => {
+  if (bajaShowcaseState.timerId) {
+    window.clearInterval(bajaShowcaseState.timerId);
+    bajaShowcaseState.timerId = null;
+  }
+};
+
+const updateBajaShowcaseDots = () => {
+  if (!bajaShowcaseDots) return;
+  const dots = Array.from(bajaShowcaseDots.querySelectorAll(".baja-showcase-dot"));
+  dots.forEach((dot, index) => {
+    const isActive = index === bajaShowcaseState.index;
+    dot.classList.toggle("is-active", isActive);
+    dot.setAttribute("aria-selected", isActive ? "true" : "false");
+  });
+};
+
+const renderBajaShowcaseDots = () => {
+  if (!bajaShowcaseDots) return;
+  bajaShowcaseDots.innerHTML = "";
+  if (bajaShowcaseState.slides.length <= 1) {
+    bajaShowcaseDots.style.display = "none";
+    return;
+  }
+
+  bajaShowcaseDots.style.display = "flex";
+  bajaShowcaseState.slides.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "baja-showcase-dot";
+    dot.dataset.index = String(index);
+    dot.setAttribute("aria-label", `Go to BAJA image ${index + 1}`);
+    dot.setAttribute("aria-selected", "false");
+    bajaShowcaseDots.appendChild(dot);
+  });
+  updateBajaShowcaseDots();
+};
+
+const resetBajaShowcaseSlidePositions = () => {
+  if (!bajaShowcaseCurrentImage || !bajaShowcaseNextImage) return;
+  bajaShowcaseCurrentImage.style.transition = "none";
+  bajaShowcaseNextImage.style.transition = "none";
+  bajaShowcaseCurrentImage.style.transform = "translateX(0)";
+  bajaShowcaseNextImage.style.transform = "translateX(100%)";
+  bajaShowcaseNextImage.style.visibility = "hidden";
+};
+
+const preloadUpcomingBajaSlide = () => {
+  const total = bajaShowcaseState.slides.length;
+  if (total <= 1) return;
+  const nextIndex = (bajaShowcaseState.index + 1) % total;
+  const upcoming = bajaShowcaseState.slides[nextIndex];
+  if (!upcoming?.src) return;
+  const img = new Image();
+  img.decoding = "async";
+  img.src = upcoming.src;
+};
+
+const renderBajaShowcaseSlide = ({ animate = false, direction = 1 } = {}) => {
+  if (!bajaShowcase || !bajaShowcaseCurrentImage || !bajaShowcaseNextImage || !bajaShowcaseEmpty) return;
+
+  if (bajaShowcaseState.slides.length === 0) {
+    if (bajaShowcasePrevButton) bajaShowcasePrevButton.style.display = "none";
+    if (bajaShowcaseNextButton) bajaShowcaseNextButton.style.display = "none";
+    bajaShowcaseState.isSliding = false;
+    if (!bajaShowcaseState.loading) {
+      bajaShowcaseCurrentImage.removeAttribute("src");
+      bajaShowcaseNextImage.removeAttribute("src");
+      resetBajaShowcaseSlidePositions();
+      bajaShowcaseEmpty.style.display = "grid";
+      if (bajaShowcaseDots) bajaShowcaseDots.style.display = "none";
+    } else {
+      bajaShowcaseEmpty.style.display = "none";
+    }
+    return;
+  }
+
+  bajaShowcaseEmpty.style.display = "none";
+  const nextSlide = bajaShowcaseState.slides[bajaShowcaseState.index];
+  if (!nextSlide) return;
+  const hasMultipleSlides = bajaShowcaseState.slides.length > 1;
+  if (bajaShowcasePrevButton) bajaShowcasePrevButton.style.display = hasMultipleSlides ? "grid" : "none";
+  if (bajaShowcaseNextButton) bajaShowcaseNextButton.style.display = hasMultipleSlides ? "grid" : "none";
+
+  if (bajaShowcaseDots) {
+    if (bajaShowcaseDots.childElementCount !== bajaShowcaseState.slides.length) {
+      renderBajaShowcaseDots();
+    } else {
+      updateBajaShowcaseDots();
+    }
+  }
+
+  const currentSrc = bajaShowcaseCurrentImage.getAttribute("src") ?? "";
+  const targetSrc = nextSlide.src;
+
+  if (!animate || !currentSrc || currentSrc === targetSrc || !hasMultipleSlides) {
+    bajaShowcaseCurrentImage.src = targetSrc;
+    resetBajaShowcaseSlidePositions();
+    preloadUpcomingBajaSlide();
+    return;
+  }
+
+  if (bajaShowcaseState.isSliding) return;
+  bajaShowcaseState.isSliding = true;
+  bajaShowcaseState.slideToken += 1;
+  const slideToken = bajaShowcaseState.slideToken;
+
+  const startOffset = direction >= 0 ? "100%" : "-100%";
+  const endOffset = direction >= 0 ? "-100%" : "100%";
+  const transition = `transform ${BAJA_SHOWCASE_SLIDE_MS}ms ${BAJA_SHOWCASE_SLIDE_EASE}`;
+
+  const finalizeSlide = () => {
+    if (slideToken !== bajaShowcaseState.slideToken) return;
+    bajaShowcaseCurrentImage.src = targetSrc;
+    resetBajaShowcaseSlidePositions();
+    bajaShowcaseState.isSliding = false;
+    preloadUpcomingBajaSlide();
+  };
+
+  const startSlideTransition = () => {
+    if (slideToken !== bajaShowcaseState.slideToken) return;
+    bajaShowcaseNextImage.style.visibility = "visible";
+    bajaShowcaseCurrentImage.style.transition = "none";
+    bajaShowcaseNextImage.style.transition = "none";
+    bajaShowcaseCurrentImage.style.transform = "translateX(0)";
+    bajaShowcaseNextImage.style.transform = `translateX(${startOffset})`;
+
+    // Force layout so the browser commits start positions before transition.
+    void bajaShowcaseNextImage.offsetWidth;
+
+    bajaShowcaseCurrentImage.style.transition = transition;
+    bajaShowcaseNextImage.style.transition = transition;
+    bajaShowcaseCurrentImage.style.transform = `translateX(${endOffset})`;
+    bajaShowcaseNextImage.style.transform = "translateX(0)";
+
+    const safetyTimeout = window.setTimeout(() => {
+      finalizeSlide();
+    }, BAJA_SHOWCASE_SLIDE_MS + 80);
+
+    bajaShowcaseNextImage.addEventListener(
+      "transitionend",
+      () => {
+        window.clearTimeout(safetyTimeout);
+        finalizeSlide();
+      },
+      { once: true },
+    );
+  };
+
+  if (bajaShowcaseNextImage.getAttribute("src") !== targetSrc) {
+    bajaShowcaseNextImage.src = targetSrc;
+  }
+
+  const isNextImageReady = bajaShowcaseNextImage.complete && bajaShowcaseNextImage.naturalWidth > 0;
+  if (isNextImageReady) {
+    startSlideTransition();
+    return;
+  }
+
+  const onNextReady = () => {
+    cleanupListeners();
+    startSlideTransition();
+  };
+
+  const onNextError = () => {
+    cleanupListeners();
+    if (slideToken !== bajaShowcaseState.slideToken) return;
+    bajaShowcaseCurrentImage.src = targetSrc;
+    resetBajaShowcaseSlidePositions();
+    bajaShowcaseState.isSliding = false;
+  };
+
+  const cleanupListeners = () => {
+    bajaShowcaseNextImage.removeEventListener("load", onNextReady);
+    bajaShowcaseNextImage.removeEventListener("error", onNextError);
+  };
+
+  bajaShowcaseNextImage.addEventListener("load", onNextReady, { once: true });
+  bajaShowcaseNextImage.addEventListener("error", onNextError, { once: true });
+};
+
+const moveBajaShowcaseBy = (direction) => {
+  if (bajaShowcaseState.slides.length <= 1 || bajaShowcaseState.isSliding) return;
+  bajaShowcaseState.index =
+    (bajaShowcaseState.index + direction + bajaShowcaseState.slides.length) % bajaShowcaseState.slides.length;
+  renderBajaShowcaseSlide({ animate: true, direction });
+  stopBajaShowcase();
+  startBajaShowcase();
+};
+
+const startBajaShowcase = () => {
+  if (!bajaShowcase || bajaShowcaseState.slides.length <= 1) return;
+  if (bajaShowcaseState.timerId) return;
+
+  bajaShowcaseState.timerId = window.setInterval(() => {
+    moveBajaShowcaseBy(1);
+  }, BAJA_SHOWCASE_INTERVAL_MS);
+};
+
+const setBajaShowcaseVisibility = (activeTabKey) => {
+  if (!bajaShowcase) return;
+  const isVisible = activeTabKey === "baja";
+  bajaShowcase.classList.toggle("is-visible", isVisible);
+
+  if (!isVisible) {
+    stopBajaShowcase();
+    return;
+  }
+
+  renderBajaShowcaseSlide();
+  startBajaShowcase();
+  refreshBajaShowcaseSlides();
+};
+
+bajaShowcasePrevButton?.addEventListener("click", () => {
+  moveBajaShowcaseBy(-1);
+});
+
+bajaShowcaseNextButton?.addEventListener("click", () => {
+  moveBajaShowcaseBy(1);
+});
+
+bajaShowcaseDots?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const dot = target.closest(".baja-showcase-dot");
+  if (!(dot instanceof HTMLButtonElement)) return;
+  if (bajaShowcaseState.isSliding) return;
+
+  const nextIndex = Number(dot.dataset.index);
+  if (Number.isNaN(nextIndex) || nextIndex < 0 || nextIndex >= bajaShowcaseState.slides.length) return;
+  if (nextIndex === bajaShowcaseState.index) return;
+
+  const direction = nextIndex > bajaShowcaseState.index ? 1 : -1;
+  bajaShowcaseState.index = nextIndex;
+  renderBajaShowcaseSlide({ animate: true, direction });
+  stopBajaShowcase();
+  startBajaShowcase();
+});
+
 const setActiveTab = (tabKey) => {
   tabButtons.forEach((button) => {
     const isActive = button.dataset.tab === tabKey;
@@ -401,7 +763,12 @@ const setActiveTab = (tabKey) => {
     panel.classList.toggle("is-active", panel.dataset.panel === tabKey);
   });
 
+  applyCardVisibilityForTab(tabKey);
   refreshRevealTargets();
+  setBajaShowcaseVisibility(tabKey);
+  observeActivePanelCardPreviews();
+  // Pull the latest manifest on tab changes so newly added preview/slide assets appear without restarting dev.
+  loadPortfolioImagesManifest(true);
   history.replaceState(null, "", `?tab=${tabKey}`);
 };
 
@@ -446,6 +813,78 @@ const modalDescription = modalRoot.querySelector(".media-modal-description");
 const modalPoints = modalRoot.querySelector(".media-modal-points");
 
 const isVideoExtension = (extension) => VIDEO_EXTENSIONS.includes(extension);
+const isImageExtension = (extension) => IMAGE_EXTENSIONS.includes(extension);
+
+const getPathExtension = (assetPath) => {
+  const cleanPath = assetPath.split("?")[0];
+  const dotIndex = cleanPath.lastIndexOf(".");
+  if (dotIndex === -1) return "";
+  return cleanPath.slice(dotIndex + 1).toLowerCase();
+};
+
+const getMediaTypeFromPath = (assetPath) => {
+  const extension = getPathExtension(assetPath);
+  if (isImageExtension(extension)) return "image";
+  if (isVideoExtension(extension)) return "video";
+  return null;
+};
+
+const isImagePath = (assetPath) => getMediaTypeFromPath(assetPath) === "image";
+
+const getManifestPreviewForProject = (projectKey, manifest) => {
+  if (!manifest || typeof manifest !== "object") return null;
+  const detail = projectDetails[projectKey] ?? {};
+  const mediaFolder = detail.mediaFolder ?? projectKey;
+  if (!mediaFolder) return null;
+
+  const previewFolderKey = `${mediaFolder}/${CARD_PREVIEW_SUBFOLDER}`;
+  const previewCandidates = Array.isArray(manifest[previewFolderKey]) ? manifest[previewFolderKey] : [];
+  const previewSource = previewCandidates.find((candidate) => typeof candidate === "string" && isImagePath(candidate));
+  if (previewSource) return previewSource;
+
+  const rootCandidates = Array.isArray(manifest[mediaFolder]) ? manifest[mediaFolder] : [];
+  const rootSource = rootCandidates.find((candidate) => typeof candidate === "string" && isImagePath(candidate));
+  if (rootSource) return rootSource;
+
+  return null;
+};
+
+const applyManifestPreviewsToCards = (manifest) => {
+  const cards = Array.from(document.querySelectorAll(".project-card[data-project-key]"));
+  cards.forEach((card) => {
+    if (!(card instanceof HTMLElement)) return;
+    const projectKey = card.getAttribute("data-project-key");
+    if (!projectKey) return;
+    const previewSource = getManifestPreviewForProject(projectKey, manifest);
+    if (!previewSource) return;
+
+    const image = card.querySelector(".project-image");
+    if (!(image instanceof HTMLImageElement)) return;
+
+    if (image.src !== previewSource) {
+      image.src = previewSource;
+    }
+    const project = projectIndex.get(projectKey);
+    if (project) image.alt = `${project.title} preview image`;
+    card.dataset.previewLoaded = "true";
+    card.dataset.previewLoading = "false";
+  });
+};
+
+const getExtensionCandidates = (extension) => {
+  const lower = extension.toLowerCase();
+  const upper = extension.toUpperCase();
+  if (lower === upper) return [lower];
+  return [lower, upper];
+};
+
+const buildNumberedSourceCandidates = (folderPath, index, extension) => {
+  const candidates = [];
+  getExtensionCandidates(extension).forEach((ext) => {
+    candidates.push(`${folderPath}/${index}.${ext}`);
+  });
+  return candidates;
+};
 
 const getMediaTypeFromContentType = (contentTypeHeader) => {
   const contentType = (contentTypeHeader ?? "").toLowerCase();
@@ -472,9 +911,87 @@ const probeMediaSource = async (url) => {
   }
 };
 
+const loadPortfolioImagesManifest = async (forceRefresh = false) => {
+  if (forceRefresh) {
+    portfolioImagesManifest = null;
+    portfolioImagesManifestPromise = null;
+    projectPreviewSourceCache.clear();
+    projectPreviewSourcePromiseCache.clear();
+  }
+
+  if (portfolioImagesManifest) return portfolioImagesManifest;
+  if (portfolioImagesManifestPromise) return portfolioImagesManifestPromise;
+
+  const cacheBuster = `t=${Date.now()}`;
+  portfolioImagesManifestPromise = fetch(`/portfolio-images-manifest.json?${cacheBuster}`, { cache: "no-store" })
+    .then((response) => (response.ok ? response.json() : {}))
+    .catch(() => ({}))
+    .then((manifest) => {
+      portfolioImagesManifest = manifest && typeof manifest === "object" ? manifest : {};
+      applyManifestPreviewsToCards(portfolioImagesManifest);
+      return portfolioImagesManifest;
+    })
+    .finally(() => {
+      portfolioImagesManifestPromise = null;
+    });
+
+  return portfolioImagesManifestPromise;
+};
+
+const buildMediaManifestKey = (mediaFolder, subfolder = null) => {
+  if (!mediaFolder) return "";
+  if (!subfolder) return mediaFolder;
+  return `${mediaFolder}/${subfolder}`;
+};
+
+const getManifestFolderSources = async (mediaFolder, subfolder = null) => {
+  const key = buildMediaManifestKey(mediaFolder, subfolder);
+  if (!key) return [];
+
+  const manifest = await loadPortfolioImagesManifest();
+  const folderEntries = manifest?.[key];
+  if (!Array.isArray(folderEntries)) return [];
+
+  const validEntries = folderEntries.filter((entry) => typeof entry === "string" && entry.length > 0);
+  return validEntries;
+};
+
 const resolveAutoSlides = async (projectKey, mediaFolder) => {
   if (!mediaFolder) return [];
 
+  const manifestSlideSources = await getManifestFolderSources(mediaFolder, CARD_SLIDES_SUBFOLDER);
+  if (manifestSlideSources.length > 0) {
+    const manifestSlides = manifestSlideSources
+      .map((source, index) => {
+        const mediaType = getMediaTypeFromPath(source);
+        if (!mediaType) return null;
+        return {
+          type: mediaType,
+          src: source,
+          caption: `${projectKey} media ${index + 1}`,
+        };
+      })
+      .filter(Boolean);
+    if (manifestSlides.length > 0) return manifestSlides;
+  }
+
+  const manifestSources = await getManifestFolderSources(mediaFolder);
+  if (manifestSources.length > 0) {
+    const manifestSlides = manifestSources
+      .map((source, index) => {
+        const mediaType = getMediaTypeFromPath(source);
+        if (!mediaType) return null;
+        return {
+          type: mediaType,
+          src: source,
+          caption: `${projectKey} media ${index + 1}`,
+        };
+      })
+      .filter(Boolean);
+    if (manifestSlides.length > 0) return manifestSlides;
+  }
+
+  const slidesFolderPath = `/portfolio-images/${mediaFolder}/${CARD_SLIDES_SUBFOLDER}`;
   const folderPath = `/portfolio-images/${mediaFolder}`;
   const slides = [];
   const extensions = [...IMAGE_EXTENSIONS, ...VIDEO_EXTENSIONS];
@@ -483,18 +1000,24 @@ const resolveAutoSlides = async (projectKey, mediaFolder) => {
   for (let i = 1; i <= MAX_AUTO_SLIDES; i += 1) {
     let foundForIndex = false;
     for (const extension of extensions) {
-      const source = `${folderPath}/${i}.${extension}`;
-      // eslint-disable-next-line no-await-in-loop
-      const mediaType = await probeMediaSource(source);
-      if (!mediaType) continue;
+      const candidates = [
+        ...buildNumberedSourceCandidates(slidesFolderPath, i, extension),
+        ...buildNumberedSourceCandidates(folderPath, i, extension),
+      ];
+      for (const source of candidates) {
+        // eslint-disable-next-line no-await-in-loop
+        const mediaType = await probeMediaSource(source);
+        if (!mediaType) continue;
 
-      slides.push({
-        type: mediaType ?? (isVideoExtension(extension) ? "video" : "image"),
-        src: source,
-        caption: `${projectKey} media ${i}`,
-      });
-      foundForIndex = true;
-      break;
+        slides.push({
+          type: mediaType ?? (isVideoExtension(extension) ? "video" : "image"),
+          src: source,
+          caption: `${projectKey} media ${i}`,
+        });
+        foundForIndex = true;
+        break;
+      }
+      if (foundForIndex) break;
     }
 
     if (foundForIndex) {
@@ -508,39 +1031,200 @@ const resolveAutoSlides = async (projectKey, mediaFolder) => {
   return slides;
 };
 
+const resolveBajaShowcaseSlides = async () => {
+  const folderPath = `/portfolio-images/${BAJA_SHOWCASE_FOLDER}`;
+  const numberedSlides = [];
+  let misses = 0;
+
+  for (let i = 1; i <= BAJA_SHOWCASE_MAX_SLIDES; i += 1) {
+    let found = false;
+    for (const extension of IMAGE_EXTENSIONS) {
+      const candidates = buildNumberedSourceCandidates(folderPath, i, extension);
+      for (const source of candidates) {
+        // eslint-disable-next-line no-await-in-loop
+        const mediaType = await probeMediaSource(source);
+        if (mediaType !== "image") continue;
+        numberedSlides.push({
+          src: source,
+          caption: `BAJA gallery ${i}`,
+        });
+        found = true;
+        break;
+      }
+      if (found) break;
+    }
+
+    if (found) {
+      misses = 0;
+    } else {
+      misses += 1;
+      if (misses >= BAJA_SHOWCASE_MAX_MISSES) break;
+    }
+  }
+
+  if (numberedSlides.length > 0) return numberedSlides;
+
+  // Fallback: if files are not numbered, use manifest order.
+  const manifestSources = await getManifestFolderSources(BAJA_SHOWCASE_FOLDER);
+  if (manifestSources.length > 0) {
+    const manifestSlides = manifestSources
+      .filter((source) => getMediaTypeFromPath(source) === "image")
+      .map((source, index) => ({
+        src: source,
+        caption: `BAJA gallery ${index + 1}`,
+      }));
+    if (manifestSlides.length > 0) return manifestSlides;
+  }
+
+  return [];
+};
+
+const refreshBajaShowcaseSlides = async () => {
+  bajaShowcaseState.loading = true;
+  renderBajaShowcaseSlide();
+  await loadPortfolioImagesManifest(true);
+  bajaShowcaseState.slides = await resolveBajaShowcaseSlides();
+  bajaShowcaseState.index = 0;
+  bajaShowcaseState.loading = false;
+  renderBajaShowcaseSlide();
+  startBajaShowcase();
+};
+
+const initBajaShowcase = async () => {
+  if (bajaShowcaseState.initialized) return;
+  bajaShowcaseState.initialized = true;
+  bajaShowcaseState.slides = await resolveBajaShowcaseSlides();
+  bajaShowcaseState.index = 0;
+
+  const activeTab = document.querySelector(".projects-tab.is-active");
+  const activeTabKey = activeTab?.getAttribute("data-tab") ?? "featured";
+  setBajaShowcaseVisibility(activeTabKey);
+};
+
 const resolveFirstPreviewImage = async (projectKey, mediaFolder) => {
+  const manifestPreviewSources = await getManifestFolderSources(mediaFolder, CARD_PREVIEW_SUBFOLDER);
+  const firstManifestImage = manifestPreviewSources.find((source) => getMediaTypeFromPath(source) === "image");
+  if (firstManifestImage) return firstManifestImage;
+
+  const manifestSources = await getManifestFolderSources(mediaFolder);
+  const firstRootManifestImage = manifestSources.find((source) => getMediaTypeFromPath(source) === "image");
+  if (firstRootManifestImage) return firstRootManifestImage;
+
+  const previewFolderPath = `/portfolio-images/${mediaFolder}/${CARD_PREVIEW_SUBFOLDER}`;
   const folderPath = `/portfolio-images/${mediaFolder}`;
+
   for (const extension of IMAGE_EXTENSIONS) {
-    const source = `${folderPath}/1.${extension}`;
-    // eslint-disable-next-line no-await-in-loop
-    const mediaType = await probeMediaSource(source);
-    if (mediaType === "image") return source;
+    const previewNameCandidates = [
+      `card preview.${extension.toLowerCase()}`,
+      `card preview.${extension.toUpperCase()}`,
+      `preview.${extension.toLowerCase()}`,
+      `preview.${extension.toUpperCase()}`,
+    ];
+    for (const fileName of previewNameCandidates) {
+      const source = `${previewFolderPath}/${fileName}`;
+      // eslint-disable-next-line no-await-in-loop
+      const mediaType = await probeMediaSource(source);
+      if (mediaType === "image") return source;
+    }
+  }
+
+  for (const extension of IMAGE_EXTENSIONS) {
+    const candidates = [
+      ...buildNumberedSourceCandidates(previewFolderPath, 1, extension),
+      ...buildNumberedSourceCandidates(folderPath, 1, extension),
+    ];
+    for (const source of candidates) {
+      // eslint-disable-next-line no-await-in-loop
+      const mediaType = await probeMediaSource(source);
+      if (mediaType === "image") return source;
+    }
   }
   return null;
 };
 
-const applyAutoPreviewImages = async () => {
-  const entries = Array.from(projectIndex.values());
+const getProjectPreviewSource = async (projectKey, forceRefresh = false) => {
+  if (forceRefresh) {
+    await loadPortfolioImagesManifest(true);
+  }
 
-  await Promise.all(
-    entries.map(async (project) => {
-      const detail = projectDetails[project.key] ?? {};
-      const mediaFolder = detail.mediaFolder ?? project.key;
-      const previewImage = await resolveFirstPreviewImage(project.key, mediaFolder);
-      if (!previewImage) return;
+  if (projectPreviewSourceCache.has(projectKey)) {
+    return projectPreviewSourceCache.get(projectKey);
+  }
 
-      const card = document.querySelector(`.project-card[data-project-key="${project.key}"]`);
-      const image = card?.querySelector(".project-image");
-      if (!(image instanceof HTMLImageElement)) return;
-      image.src = previewImage;
-      image.alt = `${project.title} preview image`;
-    }),
-  );
+  if (projectPreviewSourcePromiseCache.has(projectKey)) {
+    return projectPreviewSourcePromiseCache.get(projectKey);
+  }
+
+  const previewPromise = (async () => {
+    const detail = projectDetails[projectKey] ?? {};
+    const mediaFolder = detail.mediaFolder ?? projectKey;
+    const source = await resolveFirstPreviewImage(projectKey, mediaFolder);
+    if (!source && !forceRefresh) {
+      return getProjectPreviewSource(projectKey, true);
+    }
+    if (source) {
+      projectPreviewSourceCache.set(projectKey, source);
+    } else {
+      projectPreviewSourceCache.delete(projectKey);
+    }
+    projectPreviewSourcePromiseCache.delete(projectKey);
+    return source;
+  })();
+
+  projectPreviewSourcePromiseCache.set(projectKey, previewPromise);
+  return previewPromise;
+};
+
+const loadCardPreviewForCard = async (card) => {
+  if (!(card instanceof HTMLElement)) return;
+  if (card.dataset.previewLoaded === "true" || card.dataset.previewLoading === "true") return;
+
+  const projectKey = card.getAttribute("data-project-key");
+  if (!projectKey) return;
+
+  card.dataset.previewLoading = "true";
+
+  const image = card.querySelector(".project-image");
+  if (!(image instanceof HTMLImageElement)) {
+    card.dataset.previewLoaded = "true";
+    card.dataset.previewLoading = "false";
+    return;
+  }
+
+  const previewSource = await getProjectPreviewSource(projectKey);
+  if (previewSource && card.isConnected) {
+    image.src = previewSource;
+    const project = projectIndex.get(projectKey);
+    if (project) image.alt = `${project.title} preview image`;
+    card.dataset.previewLoaded = "true";
+  } else {
+    // Leave this retryable in case media was added recently or a prior lookup failed.
+    card.dataset.previewLoaded = "false";
+  }
+  card.dataset.previewLoading = "false";
+};
+
+const observeActivePanelCardPreviews = () => {
+  const activePanel = document.querySelector(".projects-panel.is-active");
+  if (!activePanel) return;
+
+  const observer = ensureCardPreviewObserver();
+  observer.disconnect();
+
+  const activeCards = Array.from(activePanel.querySelectorAll(".project-card"));
+  if (activeCards.length === 0) return;
+
+  // Eagerly load all cards currently visible in active tab for more reliable preview hydration.
+  activeCards.forEach((card) => {
+    loadCardPreviewForCard(card);
+  });
+  activeCards.forEach((card) => observer.observe(card));
 };
 
 const getProjectModalContent = async (projectKey) => {
   const project = projectIndex.get(projectKey);
   if (!project) return null;
+  await loadPortfolioImagesManifest(true);
 
   const detail = projectDetails[projectKey] ?? {};
   const customSlides = Array.isArray(detail.slides) ? detail.slides : [];
@@ -709,4 +1393,5 @@ document.addEventListener("click", (event) => {
 
 renderPanels();
 setActiveTab(getInitialTab());
-applyAutoPreviewImages();
+initBajaShowcase();
+loadPortfolioImagesManifest();

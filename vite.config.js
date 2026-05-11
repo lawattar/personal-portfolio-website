@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
 import { fileURLToPath } from "node:url";
+import { portfolioImagesManifestPlugin } from "./scripts/manifest-utils.mjs";
 
 export default defineConfig({
+  plugins: [portfolioImagesManifestPlugin()],
   build: {
     rollupOptions: {
       input: {

@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "manifest:generate": "node scripts/generate-portfolio-manifest.mjs",
+    "predev": "npm run manifest:generate",
     "dev": "vite",
+    "prebuild": "npm run manifest:generate",
     "build": "vite build",
     "preview": "vite preview",
     "compress:scene": "gltf-transform optimize \"public/models/car and scene combined with camera3.glb\" public/models/scene-compressed.glb --compress draco",
