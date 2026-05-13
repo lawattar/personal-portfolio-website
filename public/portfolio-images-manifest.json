@@ -1,19 +1,72 @@
 {
+  "agricultural-drone-design/preview": [
+    "/portfolio-images/agricultural-drone-design/preview/Screenshot 2024-12-06 042212.png"
+  ],
+  "agricultural-drone-design/slides": [
+    "/portfolio-images/agricultural-drone-design/slides/1.png",
+    "/portfolio-images/agricultural-drone-design/slides/2.png"
+  ],
+  "arabic-art-and-calligraphies/preview": [
+    "/portfolio-images/arabic-art-and-calligraphies/preview/IMG_4148.jpg"
+  ],
+  "arabic-art-and-calligraphies/slides": [
+    "/portfolio-images/arabic-art-and-calligraphies/slides/1.jpg",
+    "/portfolio-images/arabic-art-and-calligraphies/slides/2.jpg",
+    "/portfolio-images/arabic-art-and-calligraphies/slides/3.jpg",
+    "/portfolio-images/arabic-art-and-calligraphies/slides/4.jpg",
+    "/portfolio-images/arabic-art-and-calligraphies/slides/5.jpg",
+    "/portfolio-images/arabic-art-and-calligraphies/slides/6.png",
+    "/portfolio-images/arabic-art-and-calligraphies/slides/7.jpg"
+  ],
   "baja-gallery": [
     "/portfolio-images/baja-gallery/1.JPG",
     "/portfolio-images/baja-gallery/2.JPG",
     "/portfolio-images/baja-gallery/3.jpg",
     "/portfolio-images/baja-gallery/4.jpg",
-    "/portfolio-images/baja-gallery/5.jpg"
+    "/portfolio-images/baja-gallery/5.jpg",
+    "/portfolio-images/baja-gallery/6.JPG"
   ],
   "baja-sae-motion-sim/preview": [
     "/portfolio-images/baja-sae-motion-sim/preview/card preview.png"
+  ],
+  "baja-sae-motion-sim/slides": [
+    "/portfolio-images/baja-sae-motion-sim/slides/0.png",
+    "/portfolio-images/baja-sae-motion-sim/slides/1.JPG",
+    "/portfolio-images/baja-sae-motion-sim/slides/2.jpg",
+    "/portfolio-images/baja-sae-motion-sim/slides/3.jpg",
+    "/portfolio-images/baja-sae-motion-sim/slides/4.jpg",
+    "/portfolio-images/baja-sae-motion-sim/slides/5.jpg",
+    "/portfolio-images/baja-sae-motion-sim/slides/6.PNG"
+  ],
+  "computer-building/preview": [
+    "/portfolio-images/computer-building/preview/IMG_4326.jpg"
+  ],
+  "computer-building/slides": [
+    "/portfolio-images/computer-building/slides/0.mp4",
+    "/portfolio-images/computer-building/slides/1.jpg"
   ],
   "custom-linear-actuators/preview": [
     "/portfolio-images/custom-linear-actuators/preview/Corner View.png"
   ],
   "custom-linear-actuators/slides": [
-    "/portfolio-images/custom-linear-actuators/slides/Cut View.png"
+    "/portfolio-images/custom-linear-actuators/slides/1.png",
+    "/portfolio-images/custom-linear-actuators/slides/2.png",
+    "/portfolio-images/custom-linear-actuators/slides/3.png",
+    "/portfolio-images/custom-linear-actuators/slides/4.png",
+    "/portfolio-images/custom-linear-actuators/slides/5.png",
+    "/portfolio-images/custom-linear-actuators/slides/6.MOV",
+    "/portfolio-images/custom-linear-actuators/slides/7.mov",
+    "/portfolio-images/custom-linear-actuators/slides/8.MOV"
+  ],
+  "custom-v-twin-motorcycle-engine/preview": [
+    "/portfolio-images/custom-v-twin-motorcycle-engine/preview/Screenshot 2026-05-12 131335.png"
+  ],
+  "custom-v-twin-motorcycle-engine/slides": [
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/1.png",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/2.png",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/3.mp4",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/4.png",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/5.gif"
   ],
   "cwru-lifts/slides": [
     "/portfolio-images/cwru-lifts/slides/Photo Video Dump Generic Personal Instagram Reel in Pink White Black Elegant Serif Style (17) (1) (1).MP4"
@@ -23,6 +76,17 @@
   ],
   "food-bank/preview": [
     "/portfolio-images/food-bank/preview/484167535_1093374285925247_5825486658853122881_n.jpg"
+  ],
+  "greek-lithophane-lamps/preview": [
+    "/portfolio-images/greek-lithophane-lamps/preview/2025-01-03_062d2cabfd5a3.webp"
+  ],
+  "greek-lithophane-lamps/slides": [
+    "/portfolio-images/greek-lithophane-lamps/slides/1.gif",
+    "/portfolio-images/greek-lithophane-lamps/slides/2.jpg",
+    "/portfolio-images/greek-lithophane-lamps/slides/3.jpg",
+    "/portfolio-images/greek-lithophane-lamps/slides/4.gif",
+    "/portfolio-images/greek-lithophane-lamps/slides/5.jpg",
+    "/portfolio-images/greek-lithophane-lamps/slides/6.jpg"
   ],
   "life-guard/preview": [
     "/portfolio-images/life-guard/preview/500297927_1341195988006591_7632106801698739746_n.jpg"
@@ -36,6 +100,24 @@
   "lincoln-electric/slides": [
     "/portfolio-images/lincoln-electric/slides/1.svg"
   ],
+  "powerlifting/slides": [
+    "/portfolio-images/powerlifting/slides/IMG_6465.mp4"
+  ],
+  "redbull-f1-steering-wheel-replica/preview": [
+    "/portfolio-images/redbull-f1-steering-wheel-replica/preview/Screenshot 2026-05-13 010618.png"
+  ],
+  "redbull-f1-steering-wheel-replica/slides": [
+    "/portfolio-images/redbull-f1-steering-wheel-replica/slides/1.jpg",
+    "/portfolio-images/redbull-f1-steering-wheel-replica/slides/2.jpg"
+  ],
+  "rugby/preview": [
+    "/portfolio-images/rugby/preview/IMG_0947.JPG"
+  ],
+  "rugby/slides": [
+    "/portfolio-images/rugby/slides/0.MOV",
+    "/portfolio-images/rugby/slides/1.JPG",
+    "/portfolio-images/rugby/slides/2.JPEG"
+  ],
   "scribeamerica/preview": [
     "/portfolio-images/scribeamerica/preview/ScribeAmerica.jpg"
   ],
@@ -43,12 +125,15 @@
     "/portfolio-images/sr25-steering-wheel/preview/LMF05437-3 shrunk.jpg"
   ],
   "sr25-steering-wheel/slides": [
-    "/portfolio-images/sr25-steering-wheel/slides/1.jpg",
+    "/portfolio-images/sr25-steering-wheel/slides/0.jpg",
+    "/portfolio-images/sr25-steering-wheel/slides/1.png",
     "/portfolio-images/sr25-steering-wheel/slides/2.png",
     "/portfolio-images/sr25-steering-wheel/slides/3.png",
-    "/portfolio-images/sr25-steering-wheel/slides/4.PNG",
+    "/portfolio-images/sr25-steering-wheel/slides/4.png",
     "/portfolio-images/sr25-steering-wheel/slides/5.jpg",
-    "/portfolio-images/sr25-steering-wheel/slides/6.jpg"
+    "/portfolio-images/sr25-steering-wheel/slides/6.jpg",
+    "/portfolio-images/sr25-steering-wheel/slides/7.jpg",
+    "/portfolio-images/sr25-steering-wheel/slides/8.png"
   ],
   "sr26-steering-wheel/preview": [
     "/portfolio-images/sr26-steering-wheel/preview/P4152072.JPG"
@@ -61,11 +146,16 @@
     "/portfolio-images/sr26-steering-wheel/slides/5.png",
     "/portfolio-images/sr26-steering-wheel/slides/6.png",
     "/portfolio-images/sr26-steering-wheel/slides/7.png",
-    "/portfolio-images/sr26-steering-wheel/slides/8.jpg",
-    "/portfolio-images/sr26-steering-wheel/slides/9.jpg",
-    "/portfolio-images/sr26-steering-wheel/slides/10.jpg",
+    "/portfolio-images/sr26-steering-wheel/slides/8.png",
+    "/portfolio-images/sr26-steering-wheel/slides/9.png",
+    "/portfolio-images/sr26-steering-wheel/slides/10.png",
     "/portfolio-images/sr26-steering-wheel/slides/11.jpg",
     "/portfolio-images/sr26-steering-wheel/slides/12.jpg",
-    "/portfolio-images/sr26-steering-wheel/slides/IMG_9826.MOV"
+    "/portfolio-images/sr26-steering-wheel/slides/13.jpg",
+    "/portfolio-images/sr26-steering-wheel/slides/14.jpg",
+    "/portfolio-images/sr26-steering-wheel/slides/15.MOV",
+    "/portfolio-images/sr26-steering-wheel/slides/16.jpg",
+    "/portfolio-images/sr26-steering-wheel/slides/17.JPG",
+    "/portfolio-images/sr26-steering-wheel/slides/18.JPG"
   ]
 }

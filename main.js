@@ -7,6 +7,7 @@ const loadingScreen = document.querySelector(".loading-screen");
 const audioToggleButton = document.querySelector(".audio-toggle");
 const brakeModeButton = document.querySelector('[data-light-mode="brake"]');
 const reverseModeButton = document.querySelector('[data-light-mode="reverse"]');
+const scrollHint = document.querySelector(".scroll-hint");
 
 // Loading screen controls.
 const loadingScreenEnabled = true;
@@ -1151,3 +1152,17 @@ if (prioritizeSpinnerFirstPaint) {
 } else {
   beginSceneLoad();
 }
+
+const updateScrollHintVisibility = () => {
+  if (!scrollHint) return;
+
+  const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const isScrollable = scrollableHeight > 48;
+  const nearBottom = window.scrollY >= Math.max(0, scrollableHeight - 84);
+
+  scrollHint.classList.toggle("is-visible", isScrollable && !nearBottom);
+};
+
+window.addEventListener("scroll", updateScrollHintVisibility, { passive: true });
+window.addEventListener("resize", updateScrollHintVisibility);
+window.setTimeout(updateScrollHintVisibility, 0);

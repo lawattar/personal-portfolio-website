@@ -7,6 +7,8 @@ const bajaShowcaseEmpty = document.querySelector(".baja-showcase-empty");
 const bajaShowcasePrevButton = document.querySelector(".baja-showcase-arrow-prev");
 const bajaShowcaseNextButton = document.querySelector(".baja-showcase-arrow-next");
 const bajaShowcaseDots = document.querySelector(".baja-showcase-dots");
+const scrollHint = document.querySelector(".scroll-hint");
+const APP_BASE_URL = import.meta.env.BASE_URL || "/";
 
 const projectsByTab = {
   featured: [
@@ -67,6 +69,22 @@ const projectsByTab = {
         "Concept and system design for an agricultural drone platform focused on stability, payload integration, and field operations.",
       tags: ["Aerospace", "Systems", "Design"],
     },
+    {
+      key: "cwru-motorsports-led-sign",
+      title: "CWRU Motorsports LED Sign",
+      image: "/images/projects/cwru-led-sign.svg",
+      description:
+        "Custom LED branding fixture with enclosure design, mounting strategy, and clean wiring approach for event display.",
+      tags: ["Electrical", "Fabrication", "Branding"],
+    },
+    {
+      key: "greek-lithophane-lamps",
+      title: "Greek Lithophane Lamps",
+      image: "/images/projects/greek-lithophane-lamps.svg",
+      description:
+        "Parametric lamp designs balancing printable geometry, material diffusion, and ornamental visual detail.",
+      tags: ["3D Print", "Parametric", "Product"],
+    },
   ],
   baja: [
     {
@@ -102,32 +120,32 @@ const projectsByTab = {
       tags: ["Electrical", "Fabrication", "Branding"],
     },
   ],
-  mechanical: [
-    {
-      key: "cwru-motorsports-led-sign",
-      title: "CWRU Motorsports LED Sign",
-      image: "/images/projects/cwru-led-sign.svg",
-      description:
-        "Custom LED branding fixture with enclosure design, mounting strategy, and clean wiring approach for event display.",
-      tags: ["Electrical", "Fabrication", "Branding"],
-    },
-    {
-      key: "greek-lithophane-lamps",
-      title: "Greek Lithophane Lamps",
-      image: "/images/projects/greek-lithophane-lamps.svg",
-      description:
-        "Parametric lamp designs balancing printable geometry, material diffusion, and ornamental visual detail.",
-      tags: ["3D Print", "Parametric", "Product"],
-    },
-  ],
   coding: [
     {
-      key: "coding-projects",
-      title: "Coding Projects",
-      image: "/images/projects/coding-projects.svg",
+      key: "threejs-global-temperature-ui",
+      title: "Three.js Global Temperature UI",
+      image: "/images/projects/threejs-global-temperature-ui.svg",
       description:
-        "Software-focused work including simulation tooling, interface logic, embedded utilities, and automation scripts.",
-      tags: ["JavaScript", "Embedded", "Tooling"],
+        "Interactive Three.js climate visualization interface focused on responsive data storytelling and real-time rendering.",
+      tags: ["Three.js", "Data Viz", "UI"],
+      externalLinks: [{ label: "View Repo", href: "https://github.com/lawattar" }],
+    },
+    {
+      key: "stm32-linear-actuator-controller",
+      title: "STM32 Linear Actuator Controller",
+      image: "/images/projects/stm32-linear-actuator-controller.svg",
+      description:
+        "Embedded control system on STM32 for linear actuator motion, tuning, and hardware-in-the-loop validation.",
+      tags: ["STM32", "Embedded", "Controls"],
+      externalLinks: [{ label: "View Repo", href: "https://github.com/lawattar" }],
+    },
+    {
+      key: "pygame-pacman",
+      title: "pygame Pacman",
+      image: "/images/projects/pygame-pacman.svg",
+      description:
+        "Arcade-style Pacman implementation in pygame with gameplay logic, collision handling, and animation states.",
+      tags: ["Python", "Pygame", "Game Dev"],
       externalLinks: [{ label: "View Repo", href: "https://github.com/lawattar" }],
     },
   ],
@@ -191,11 +209,18 @@ const projectsByTab = {
   ],
   athletics: [
     {
-      key: "lifting",
-      title: "Lifting",
-      image: "/images/projects/athletics.svg",
-      description: "Training highlights, lifting sessions, and event media.",
-      tags: ["Strength", "Training", "Performance"],
+      key: "powerlifting",
+      title: "Powerlifting",
+      image: "/images/projects/powerlifting.svg",
+      description: "Powerlifting training blocks, meets, and strength progression highlights.",
+      tags: ["Strength", "Training", "Competition"],
+    },
+    {
+      key: "rugby",
+      title: "Rugby",
+      image: "/images/projects/rugby.svg",
+      description: "CWRU Rugby training, matches, and team development highlights.",
+      tags: ["CWRU", "Rugby", "Teamwork"],
     },
   ],
   leadership: [
@@ -209,7 +234,7 @@ const projectsByTab = {
     {
       key: "msa",
       title: "MSA",
-      image: "/images/projects/volunteering.svg",
+      image: "/images/projects/msa.svg",
       description: "Leadership and community programming through MSA initiatives.",
       tags: ["Leadership", "Community", "Organization"],
     },
@@ -249,11 +274,17 @@ const projectDetails = {
     summary: "Motion simulation stack with hardware/software integration.",
     points: ["Vehicle dynamics integration", "Telemetry and controls workflow", "Validation tests"],
     mediaFolder: "baja-sae-motion-sim",
+    customSlidesPlacement: "split-first-last",
     slides: [
       {
         type: "embed",
         src: "https://www.youtube.com/embed/-549WYZ5cbQ?rel=0&vq=hd720",
         caption: "BAJA SAE Motion Sim demo video",
+      },
+      {
+        type: "embed",
+        src: "https://www.youtube.com/embed/gbVb0tjXpt8?rel=0&vq=hd720",
+        caption: "BAJA SAE Motion Sim additional demo",
       },
     ],
   },
@@ -261,6 +292,11 @@ const projectDetails = {
     summary: "Main engine project with multiple subsystem tracks.",
     points: ["Subsystem planning", "CAD and packaging", "Manufacturing feasibility"],
     mediaFolder: "custom-v-twin-motorcycle-engine",
+    downloadAction: {
+      label: "Download Report",
+      href: "/Files/EMAE_360_Report.pdf",
+      filename: "EMAE_360_Report.pdf",
+    },
   },
   "cwru-motorsports-led-sign": {
     summary: "Design and build details for the LED sign project.",
@@ -271,11 +307,26 @@ const projectDetails = {
     summary: "Parametric design and print outcomes for lithophane lamps.",
     points: ["Material diffusion behavior", "Geometry tuning", "Final print setup"],
     mediaFolder: "greek-lithophane-lamps",
+    downloadAction: {
+      label: "View Files",
+      href: "https://makerworld.com/en/@lawattar",
+      external: true,
+    },
   },
-  "coding-projects": {
-    summary: "Code portfolio snapshots and technical decisions.",
-    points: ["Simulation utilities", "UI logic", "Embedded support tooling"],
-    mediaFolder: "coding-projects",
+  "threejs-global-temperature-ui": {
+    summary: "Global temperature data UI built with Three.js for interactive climate exploration.",
+    points: ["3D globe rendering", "Temperature data mapping", "Interactive camera and UI controls"],
+    mediaFolder: "threejs-global-temperature-ui",
+  },
+  "stm32-linear-actuator-controller": {
+    summary: "STM32-based actuator controller focused on robust motion control and tuning workflow.",
+    points: ["Control loop implementation", "Serial telemetry and debugging", "Bench and integration testing"],
+    mediaFolder: "stm32-linear-actuator-controller",
+  },
+  "pygame-pacman": {
+    summary: "Pacman clone in pygame covering classic game mechanics and system architecture.",
+    points: ["Entity movement and collision", "Game states and scoring", "Input handling and polish"],
+    mediaFolder: "pygame-pacman",
   },
   "lincoln-electric": {
     summary: "Experience highlights and technical learnings.",
@@ -322,6 +373,11 @@ const projectDetails = {
     points: ["CWRU rugby timeline", "Training and match clips", "Role and growth"],
     mediaFolder: "rugby",
   },
+  powerlifting: {
+    summary: "Powerlifting progression across training blocks, meets, and performance milestones.",
+    points: ["Strength cycles", "Meet prep and execution", "Performance highlights"],
+    mediaFolder: "powerlifting",
+  },
   lifting: {
     summary: "Lifting training progression, events, and competition prep.",
     points: ["Training blocks", "Event preparation", "Performance milestones"],
@@ -343,9 +399,11 @@ const modalState = {
   projectKey: null,
   slides: [],
   index: 0,
+  slideGroups: null,
+  activeGroupKey: null,
 };
 
-const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg"];
+const IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp", "svg", "gif"];
 const VIDEO_EXTENSIONS = ["mp4", "webm", "mov"];
 const MAX_AUTO_SLIDES = 16;
 const MAX_MISSES_BEFORE_STOP = 3;
@@ -366,7 +424,6 @@ const CARD_PREVIEW_ROOT_MARGIN = "0px 0px 260px 0px";
 const CARD_VISIBILITY_CONFIG = {
   featured: {},
   baja: {},
-  mechanical: {},
   coding: {},
   experience: { volunteering: false },
   athletics: {},
@@ -713,7 +770,7 @@ const startBajaShowcase = () => {
 
 const setBajaShowcaseVisibility = (activeTabKey) => {
   if (!bajaShowcase) return;
-  const isVisible = activeTabKey === "baja";
+  const isVisible = activeTabKey === "baja" || activeTabKey === "featured";
   bajaShowcase.classList.toggle("is-visible", isVisible);
 
   if (!isVisible) {
@@ -769,6 +826,8 @@ const setActiveTab = (tabKey) => {
   observeActivePanelCardPreviews();
   // Pull the latest manifest on tab changes so newly added preview/slide assets appear without restarting dev.
   loadPortfolioImagesManifest(true);
+  updateScrollHintVisibility();
+  window.requestAnimationFrame(updateScrollHintVisibility);
   history.replaceState(null, "", `?tab=${tabKey}`);
 };
 
@@ -792,25 +851,37 @@ modalRoot.innerHTML = `
   <div class="media-modal-panel" role="dialog" aria-modal="true" aria-label="Project details">
     <button class="media-modal-close" type="button" aria-label="Close details" data-modal-close="true">x</button>
     <h3 class="media-modal-title"></h3>
-    <div class="media-modal-stage"></div>
+    <div class="media-modal-stage-wrap">
+      <button class="media-modal-stage-arrow media-modal-stage-arrow-prev" type="button" data-dir="-1" aria-label="Previous media">
+        &#8249;
+      </button>
+      <div class="media-modal-stage"></div>
+      <button class="media-modal-stage-arrow media-modal-stage-arrow-next" type="button" data-dir="1" aria-label="Next media">
+        &#8250;
+      </button>
+    </div>
     <div class="media-modal-controls">
-      <button class="media-modal-nav" type="button" data-dir="-1">Prev</button>
+      <div class="media-modal-mode-buttons" aria-label="Media mode"></div>
       <span class="media-modal-counter"></span>
-      <button class="media-modal-nav" type="button" data-dir="1">Next</button>
     </div>
     <p class="media-modal-caption"></p>
     <p class="media-modal-description"></p>
     <ul class="media-modal-points"></ul>
+    <div class="media-modal-extra-actions"></div>
   </div>
 `;
 document.body.appendChild(modalRoot);
 
 const modalTitle = modalRoot.querySelector(".media-modal-title");
 const modalStage = modalRoot.querySelector(".media-modal-stage");
+const modalStagePrevArrow = modalRoot.querySelector(".media-modal-stage-arrow-prev");
+const modalStageNextArrow = modalRoot.querySelector(".media-modal-stage-arrow-next");
+const modalModeButtons = modalRoot.querySelector(".media-modal-mode-buttons");
 const modalCounter = modalRoot.querySelector(".media-modal-counter");
 const modalCaption = modalRoot.querySelector(".media-modal-caption");
 const modalDescription = modalRoot.querySelector(".media-modal-description");
 const modalPoints = modalRoot.querySelector(".media-modal-points");
+const modalExtraActions = modalRoot.querySelector(".media-modal-extra-actions");
 
 const isVideoExtension = (extension) => VIDEO_EXTENSIONS.includes(extension);
 const isImageExtension = (extension) => IMAGE_EXTENSIONS.includes(extension);
@@ -827,6 +898,64 @@ const getMediaTypeFromPath = (assetPath) => {
   if (isImageExtension(extension)) return "image";
   if (isVideoExtension(extension)) return "video";
   return null;
+};
+
+const toPublicAssetUrl = (assetPath) => {
+  if (!assetPath) return "";
+  if (/^[a-z][a-z\d+\-.]*:\/\//i.test(assetPath)) return assetPath;
+  const normalizedBase = APP_BASE_URL.endsWith("/") ? APP_BASE_URL : `${APP_BASE_URL}/`;
+  const normalizedPath = assetPath.replace(/^\/+/, "");
+  return `${normalizedBase}${normalizedPath}`;
+};
+
+const triggerBlobDownload = (blob, filename) => {
+  const blobUrl = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = blobUrl;
+  anchor.download = filename || "download";
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  window.setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+};
+
+const downloadWithFallbacks = async (assetPath, filename) => {
+  const trimmedPath = String(assetPath || "").replace(/^\/+/, "");
+  const caseVariantPath = trimmedPath.startsWith("files/")
+    ? `Files/${trimmedPath.slice("files/".length)}`
+    : trimmedPath.startsWith("Files/")
+    ? `files/${trimmedPath.slice("Files/".length)}`
+    : null;
+
+  const candidates = [
+    toPublicAssetUrl(trimmedPath),
+    `/${trimmedPath}`,
+    `./${trimmedPath}`,
+    ...(caseVariantPath ? [toPublicAssetUrl(caseVariantPath), `/${caseVariantPath}`, `./${caseVariantPath}`] : []),
+  ];
+
+  for (const url of candidates) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) continue;
+
+      const contentType = response.headers.get("content-type") || "";
+      const blob = await response.blob();
+      const looksLikePdf =
+        contentType.toLowerCase().includes("application/pdf") ||
+        String(filename || "").toLowerCase().endsWith(".pdf");
+      const looksValidSize = blob.size > 100000;
+
+      if (!looksLikePdf || !looksValidSize) continue;
+
+      triggerBlobDownload(blob, filename);
+      return true;
+    } catch {
+      // Try next fallback URL.
+    }
+  }
+
+  return false;
 };
 
 const isImagePath = (assetPath) => getMediaTypeFromPath(assetPath) === "image";
@@ -1228,27 +1357,97 @@ const getProjectModalContent = async (projectKey) => {
 
   const detail = projectDetails[projectKey] ?? {};
   const customSlides = Array.isArray(detail.slides) ? detail.slides : [];
-  const autoSlides = customSlides.length === 0
-    ? await resolveAutoSlides(projectKey, detail.mediaFolder ?? projectKey)
-    : [];
-  const slides = customSlides.length > 0
-    ? customSlides
-    : autoSlides.length > 0
-    ? autoSlides
-    : [
-        {
-          type: "image",
-          src: project.image,
-          caption: `${project.title} preview`,
-        },
-      ];
+  const autoSlides = await resolveAutoSlides(projectKey, detail.mediaFolder ?? projectKey);
+
+  let slides = [];
+  let slideGroups = null;
+  let defaultSlideGroupKey = null;
+  if (autoSlides.length > 0 && customSlides.length > 0) {
+    const placement = detail.customSlidesPlacement;
+    if (placement === "prepend") {
+      slides = [...customSlides, ...autoSlides];
+    } else if (placement === "split-first-last") {
+      slides = [customSlides[0], ...autoSlides, ...customSlides.slice(1)];
+    } else {
+      slides = [...autoSlides, ...customSlides];
+    }
+  } else if (customSlides.length > 0) {
+    slides = customSlides;
+  } else if (autoSlides.length > 0) {
+    slides = autoSlides;
+  } else {
+    slides = [
+      {
+        type: "image",
+        src: project.image,
+        caption: `${project.title} preview`,
+      },
+    ];
+  }
+
+  if (projectKey === "baja-sae-motion-sim") {
+    const videoSlides = customSlides.filter((slide) => slide && (slide.type === "embed" || slide.type === "video"));
+    const pictureSlides = autoSlides.filter((slide) => slide && slide.type === "image");
+
+    const groups = [];
+    if (videoSlides.length > 0) {
+      groups.push({ key: "videos", label: "Videos", slides: videoSlides });
+    }
+    if (pictureSlides.length > 0) {
+      groups.push({ key: "pictures", label: "Pictures", slides: pictureSlides });
+    }
+
+    if (groups.length > 0) {
+      slideGroups = groups;
+      defaultSlideGroupKey = groups.some((group) => group.key === "videos") ? "videos" : groups[0].key;
+      slides = groups.find((group) => group.key === defaultSlideGroupKey)?.slides ?? slides;
+    }
+  }
 
   return {
     title: project.title,
     summary: detail.summary ?? project.description,
     points: detail.points ?? [],
+    downloadAction: detail.downloadAction ?? null,
+    slideGroups,
+    defaultSlideGroupKey,
     slides,
   };
+};
+
+const renderModalModeButtons = () => {
+  if (!modalModeButtons) return;
+  modalModeButtons.innerHTML = "";
+
+  if (!Array.isArray(modalState.slideGroups) || modalState.slideGroups.length < 2) {
+    modalModeButtons.style.display = "none";
+    return;
+  }
+
+  modalModeButtons.style.display = "inline-flex";
+  modalState.slideGroups.forEach((group) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "media-modal-mode-button";
+    button.textContent = group.label;
+    button.setAttribute("data-media-mode-key", group.key);
+    button.classList.toggle("is-active", group.key === modalState.activeGroupKey);
+    button.setAttribute("aria-pressed", group.key === modalState.activeGroupKey ? "true" : "false");
+    modalModeButtons.appendChild(button);
+  });
+};
+
+const setModalSlideGroup = (groupKey, resetIndex = true) => {
+  if (!Array.isArray(modalState.slideGroups) || modalState.slideGroups.length === 0) return;
+  const group = modalState.slideGroups.find((candidate) => candidate.key === groupKey);
+  if (!group) return;
+
+  modalState.activeGroupKey = group.key;
+  modalState.slides = Array.isArray(group.slides) ? group.slides : [];
+  if (resetIndex) modalState.index = 0;
+
+  renderModalModeButtons();
+  renderModalSlide();
 };
 
 const renderModalPoints = (points) => {
@@ -1270,6 +1469,14 @@ const renderModalSlide = () => {
   if (!modalState.slides.length) return;
   modalState.index = ((modalState.index % modalState.slides.length) + modalState.slides.length) % modalState.slides.length;
   const slide = modalState.slides[modalState.index];
+  const hasMultipleSlides = modalState.slides.length > 1;
+
+  if (modalStagePrevArrow) {
+    modalStagePrevArrow.style.display = hasMultipleSlides ? "grid" : "none";
+  }
+  if (modalStageNextArrow) {
+    modalStageNextArrow.style.display = hasMultipleSlides ? "grid" : "none";
+  }
 
   modalCounter.textContent = `${modalState.index + 1} / ${modalState.slides.length}`;
   modalCaption.textContent = slide.caption ?? "";
@@ -1307,6 +1514,7 @@ const openProjectModal = async (projectKey) => {
   modalRoot.classList.add("is-open");
   modalRoot.setAttribute("data-project-key", projectKey);
   document.body.classList.add("modal-open");
+  updateScrollHintVisibility();
   modalTitle.textContent = project.title;
   modalDescription.textContent = "Loading media...";
   modalCaption.textContent = "";
@@ -1314,18 +1522,71 @@ const openProjectModal = async (projectKey) => {
   modalStage.innerHTML = `<div class="media-modal-loading">Loading...</div>`;
   modalPoints.innerHTML = "";
   modalPoints.style.display = "none";
+  modalState.slideGroups = null;
+  modalState.activeGroupKey = null;
+  if (modalModeButtons) {
+    modalModeButtons.innerHTML = "";
+    modalModeButtons.style.display = "none";
+  }
+  if (modalExtraActions) {
+    modalExtraActions.innerHTML = "";
+    modalExtraActions.style.display = "none";
+  }
 
   const content = await getProjectModalContent(projectKey);
   if (!content || !modalRoot.classList.contains("is-open")) return;
 
   modalState.projectKey = projectKey;
+  modalState.slideGroups = Array.isArray(content.slideGroups) ? content.slideGroups : null;
+  modalState.activeGroupKey = content.defaultSlideGroupKey ?? null;
   modalState.slides = content.slides;
   modalState.index = 0;
 
   modalTitle.textContent = content.title;
   modalDescription.textContent = content.summary;
   renderModalPoints(content.points);
-  renderModalSlide();
+  if (modalExtraActions) {
+    modalExtraActions.innerHTML = "";
+    if (content.downloadAction?.href && content.downloadAction?.label) {
+      const button = document.createElement("button");
+      button.className = "media-modal-download";
+      button.type = "button";
+      button.textContent = content.downloadAction.label;
+      button.addEventListener("click", async () => {
+        if (
+          content.downloadAction.external === true ||
+          /^[a-z][a-z\d+\-.]*:\/\//i.test(content.downloadAction.href)
+        ) {
+          window.open(content.downloadAction.href, "_blank", "noopener,noreferrer");
+          return;
+        }
+
+        button.disabled = true;
+        const originalText = button.textContent;
+        button.textContent = "Preparing download...";
+        const ok = await downloadWithFallbacks(
+          content.downloadAction.href,
+          content.downloadAction.filename ?? "download.pdf",
+        );
+        button.disabled = false;
+        button.textContent = originalText;
+        if (!ok) {
+          console.error("Failed to download report from all candidate URLs.");
+          window.alert("Could not download the report file. Check that /public/Files/EMAE_360_Report.pdf exists and refresh.");
+        }
+      });
+      modalExtraActions.appendChild(button);
+      modalExtraActions.style.display = "flex";
+    } else {
+      modalExtraActions.style.display = "none";
+    }
+  }
+  if (modalState.slideGroups && modalState.activeGroupKey) {
+    setModalSlideGroup(modalState.activeGroupKey, true);
+  } else {
+    renderModalModeButtons();
+    renderModalSlide();
+  }
 };
 
 const closeProjectModal = () => {
@@ -1336,6 +1597,13 @@ const closeProjectModal = () => {
   modalState.projectKey = null;
   modalState.slides = [];
   modalState.index = 0;
+  modalState.slideGroups = null;
+  modalState.activeGroupKey = null;
+  if (modalModeButtons) {
+    modalModeButtons.innerHTML = "";
+    modalModeButtons.style.display = "none";
+  }
+  updateScrollHintVisibility();
 };
 
 modalRoot.addEventListener("click", (event) => {
@@ -1344,6 +1612,15 @@ modalRoot.addEventListener("click", (event) => {
 
   if (target.dataset.modalClose === "true") {
     closeProjectModal();
+    return;
+  }
+
+  const mediaModeButton = target.closest(".media-modal-mode-button");
+  if (mediaModeButton instanceof HTMLButtonElement) {
+    const modeKey = mediaModeButton.getAttribute("data-media-mode-key");
+    if (modeKey) {
+      setModalSlideGroup(modeKey, true);
+    }
     return;
   }
 
@@ -1395,3 +1672,24 @@ renderPanels();
 setActiveTab(getInitialTab());
 initBajaShowcase();
 loadPortfolioImagesManifest();
+
+function updateScrollHintVisibility() {
+  if (!scrollHint) return;
+  if (document.body.classList.contains("modal-open")) {
+    scrollHint.classList.remove("is-visible");
+    return;
+  }
+
+  const scrollingElement = document.scrollingElement ?? document.documentElement;
+  const scrollableHeight = scrollingElement.scrollHeight - window.innerHeight;
+  // Ignore tiny layout overflow so short tabs (like Athletics/Leadership) do not show the hint.
+  const minMeaningfulScrollPx = 140;
+  const isScrollable = scrollableHeight > minMeaningfulScrollPx;
+  const nearBottom = window.scrollY >= Math.max(0, scrollableHeight - 84);
+
+  scrollHint.classList.toggle("is-visible", isScrollable && !nearBottom);
+}
+
+window.addEventListener("scroll", updateScrollHintVisibility, { passive: true });
+window.addEventListener("resize", updateScrollHintVisibility);
+window.setTimeout(updateScrollHintVisibility, 0);

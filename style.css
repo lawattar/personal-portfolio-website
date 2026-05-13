@@ -183,6 +183,53 @@ body {
   display: block;
 }
 
+.scroll-hint {
+  position: fixed;
+  right: clamp(0.9rem, 2vw, 1.5rem);
+  bottom: clamp(4.1rem, 9vh, 5.3rem);
+  width: clamp(2.35rem, 3.6vw, 2.8rem);
+  height: clamp(2.35rem, 3.6vw, 2.8rem);
+  color: rgba(214, 228, 254, 0.78);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0);
+  transition: opacity 220ms ease, visibility 220ms ease;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.scroll-hint.is-visible {
+  opacity: 1;
+  visibility: visible;
+  animation: scroll-hint-bounce 1.7s ease-in-out infinite;
+}
+
+.scroll-hint svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(98, 137, 211, 0.28));
+}
+
+.scroll-hint circle,
+.scroll-hint path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+@keyframes scroll-hint-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
 .overlay {
   position: fixed;
   inset: 0;

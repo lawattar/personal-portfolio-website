@@ -137,6 +137,53 @@ body.modal-open {
   color: #c3d5f5;
 }
 
+.scroll-hint {
+  position: fixed;
+  right: clamp(0.9rem, 2vw, 1.5rem);
+  bottom: clamp(0.9rem, 2vh, 1.4rem);
+  width: clamp(2.35rem, 3.6vw, 2.8rem);
+  height: clamp(2.35rem, 3.6vw, 2.8rem);
+  color: rgba(214, 228, 254, 0.78);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0);
+  transition: opacity 220ms ease, visibility 220ms ease;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.scroll-hint.is-visible {
+  opacity: 1;
+  visibility: visible;
+  animation: scroll-hint-bounce 1.7s ease-in-out infinite;
+}
+
+.scroll-hint svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 0 10px rgba(98, 137, 211, 0.28));
+}
+
+.scroll-hint circle,
+.scroll-hint path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+@keyframes scroll-hint-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
 .projects-panels {
   margin-top: 1.15rem;
 }
@@ -478,6 +525,46 @@ body.modal-open {
   height: min(68vh, 760px);
 }
 
+.media-modal-stage-wrap {
+  position: relative;
+}
+
+.media-modal-stage-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(198, 216, 250, 0.35);
+  background: rgba(3, 9, 18, 0.58);
+  color: #dbe8ff;
+  display: grid;
+  place-items: center;
+  font-size: 1.85rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 3;
+  backdrop-filter: blur(3px);
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.media-modal-stage-arrow:hover,
+.media-modal-stage-arrow:focus-visible {
+  background: rgba(12, 25, 49, 0.78);
+  border-color: rgba(220, 232, 255, 0.65);
+  transform: translateY(-50%) scale(1.03);
+  outline: none;
+}
+
+.media-modal-stage-arrow-prev {
+  left: 0.7rem;
+}
+
+.media-modal-stage-arrow-next {
+  right: 0.7rem;
+}
+
 .media-modal-loading {
   width: 100%;
   height: 100%;
@@ -512,26 +599,53 @@ body.modal-open {
 
 .media-modal-controls {
   margin-top: 0.7rem;
+  position: relative;
+  min-height: 2rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.7rem;
 }
 
-.media-modal-nav {
-  border: 1px solid rgba(198, 216, 250, 0.25);
+.media-modal-mode-buttons {
+  display: none;
+  align-items: center;
+  gap: 0.44rem;
+}
+
+.media-modal-mode-button {
+  border: 1px solid rgba(198, 216, 250, 0.28);
   border-radius: 999px;
   background: rgba(10, 17, 32, 0.72);
-  color: var(--text-primary);
-  padding: 0.42rem 0.9rem;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  letter-spacing: 0.02em;
+  padding: 0.36rem 0.78rem;
   cursor: pointer;
+  transition: transform 150ms ease, border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.media-modal-mode-button:hover,
+.media-modal-mode-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(225, 235, 255, 0.56);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.media-modal-mode-button.is-active {
+  color: var(--text-primary);
+  border-color: rgba(219, 230, 251, 0.5);
+  background: linear-gradient(180deg, rgba(135, 167, 228, 0.26), rgba(80, 106, 156, 0.24));
 }
 
 .media-modal-counter {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   color: var(--text-secondary);
   font-size: 0.9rem;
   min-width: 3.2rem;
-  text-align: left;
+  text-align: center;
 }
 
 .media-modal-caption {
@@ -554,6 +668,37 @@ body.modal-open {
   display: grid;
   gap: 0.2rem;
   font-size: 0.88rem;
+}
+
+.media-modal-extra-actions {
+  margin-top: 0.5rem;
+  display: none;
+  justify-content: flex-end;
+}
+
+.media-modal-download {
+  text-decoration: none;
+  color: var(--text-primary);
+  border: 1px solid rgba(198, 216, 250, 0.3);
+  border-radius: 999px;
+  background: rgba(10, 17, 32, 0.72);
+  font-size: 0.86rem;
+  padding: 0.46rem 0.9rem;
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease;
+  cursor: pointer;
+}
+
+.media-modal-download:hover,
+.media-modal-download:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(225, 235, 255, 0.56);
+  background: rgba(163, 189, 241, 0.12);
+  outline: none;
+}
+
+.media-modal-download:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 /* Scroll reveal: subtle and reusable on each active tab */
@@ -605,6 +750,20 @@ body.modal-open {
   .media-modal-stage {
     height: auto;
     aspect-ratio: 16 / 9;
+  }
+
+  .media-modal-stage-arrow {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.55rem;
+  }
+
+  .media-modal-stage-arrow-prev {
+    left: 0.45rem;
+  }
+
+  .media-modal-stage-arrow-next {
+    right: 0.45rem;
   }
 
   .baja-showcase-frame {

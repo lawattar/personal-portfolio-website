@@ -1,7 +1,7 @@
 ﻿import path from "node:path";
 import { readdirSync, statSync, writeFileSync, existsSync } from "node:fs";
 
-const MEDIA_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".svg", ".mp4", ".webm", ".mov"]);
+const MEDIA_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp", ".svg", ".gif", ".mp4", ".webm", ".mov"]);
 
 const listMediaFilesInFolder = (absoluteFolderPath, sortMode = "name") => {
   try {
