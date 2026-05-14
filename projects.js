@@ -59,7 +59,6 @@ const projectsByTab = {
       description:
         "Long-horizon concept-to-prototype engine project with CAD modeling, subsystem studies, and manufacturability planning.",
       tags: ["Powertrain", "CAD", "Manufacturing"],
-      note: "Suggested structure: split this into subprojects (valvetrain, cranktrain, cooling, packaging, controls).",
     },
     {
       key: "agricultural-drone-design",
@@ -234,7 +233,7 @@ const projectsByTab = {
   leadership: [
     {
       key: "cwru-lifts",
-      title: "CWRU Lifts",
+      title: "CWRU Lift",
       image: "/images/projects/cwru-lifts.svg",
       description: "Lifting events, competition videos, and promotional flyers.",
       tags: ["Lifting", "Events", "Media"],
@@ -439,6 +438,12 @@ const BAJA_SHOWCASE_INTERVAL_MS = 5000;
 const BAJA_SHOWCASE_SLIDE_MS = 1000;
 const BAJA_SHOWCASE_SLIDE_EASE = "cubic-bezier(0.22, 0.61, 0.36, 1)";
 const CARD_PREVIEW_ROOT_MARGIN = "0px 0px 260px 0px";
+// Particle background controls. Falls back to blue CSS gradient if this fails.
+const PARTICLE_BACKGROUND_CONFIG = {
+  enabled: true,
+  containerId: "particles-js",
+  settingsPath: "/Files/Background/settings json.txt",
+};
 
 // Code-only card visibility controls by tab.
 // Set a project key to false to hide that card from the tab.
@@ -476,7 +481,6 @@ const createProjectCard = (project) => {
   card.dataset.projectKey = project.key;
   card.dataset.hasDetail = "true";
 
-  const chips = (project.tags ?? []).map((tag) => `<span class="project-chip">${tag}</span>`).join("");
   const linkHtml = (project.externalLinks ?? [])
     .map((link) => `<a class="project-action" href="${link.href}" target="_blank" rel="noreferrer">${link.label}</a>`)
     .join("");
@@ -488,7 +492,6 @@ const createProjectCard = (project) => {
     <div class="project-content">
       <h3>${project.title}</h3>
       <p>${project.description}</p>
-      <div class="project-chip-row">${chips}</div>
       <div class="project-actions">
         <button class="project-action project-action-button" type="button" data-project-key="${project.key}">Open Details</button>
         ${linkHtml}
@@ -929,6 +932,32 @@ const toPublicAssetUrl = (assetPath) => {
   const normalizedBase = APP_BASE_URL.endsWith("/") ? APP_BASE_URL : `${APP_BASE_URL}/`;
   const normalizedPath = assetPath.replace(/^\/+/, "");
   return `${normalizedBase}${normalizedPath}`;
+};
+
+const initParticleBackground = async () => {
+  if (!PARTICLE_BACKGROUND_CONFIG.enabled) return;
+
+  const container = document.getElementById(PARTICLE_BACKGROUND_CONFIG.containerId);
+  if (!container) return;
+
+  if (typeof window.particlesJS !== "function") {
+    container.style.display = "none";
+    return;
+  }
+
+  try {
+    const settingsUrl = encodeURI(toPublicAssetUrl(PARTICLE_BACKGROUND_CONFIG.settingsPath));
+    const response = await fetch(settingsUrl, { cache: "no-store" });
+    if (!response.ok) throw new Error(`settings fetch failed (${response.status})`);
+
+    const settingsText = await response.text();
+    const settings = JSON.parse(settingsText);
+    window.particlesJS(PARTICLE_BACKGROUND_CONFIG.containerId, settings);
+    container.style.display = "";
+  } catch (error) {
+    console.warn("Particle background init failed. Using CSS gradient fallback.", error);
+    container.style.display = "none";
+  }
 };
 
 const triggerBlobDownload = (blob, filename) => {
@@ -1695,6 +1724,7 @@ renderPanels();
 setActiveTab(getInitialTab());
 initBajaShowcase();
 loadPortfolioImagesManifest();
+initParticleBackground();
 
 function updateScrollHintVisibility() {
   if (!scrollHint) return;

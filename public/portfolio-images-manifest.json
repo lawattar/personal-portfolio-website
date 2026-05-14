@@ -89,6 +89,13 @@
   "food-bank/slides": [
     "/portfolio-images/food-bank/slides/1.jpg"
   ],
+  "geometric-led-wall-panels/preview": [
+    "/portfolio-images/geometric-led-wall-panels/preview/IMG_7141.jpg"
+  ],
+  "geometric-led-wall-panels/slides": [
+    "/portfolio-images/geometric-led-wall-panels/slides/1.jpg",
+    "/portfolio-images/geometric-led-wall-panels/slides/2.png"
+  ],
   "greek-lithophane-lamps/preview": [
     "/portfolio-images/greek-lithophane-lamps/preview/2025-01-03_062d2cabfd5a3.webp"
   ],
@@ -193,6 +200,11 @@
   ],
   "stm32-linear-actuator-controller/preview": [
     "/portfolio-images/stm32-linear-actuator-controller/preview/Screenshot 2026-05-14 151611.png"
+  ],
+  "stm32-linear-actuator-controller/slides": [
+    "/portfolio-images/stm32-linear-actuator-controller/slides/0.png",
+    "/portfolio-images/stm32-linear-actuator-controller/slides/1.png",
+    "/portfolio-images/stm32-linear-actuator-controller/slides/2.png"
   ],
   "threejs-global-temperature-ui/preview": [
     "/portfolio-images/threejs-global-temperature-ui/preview/Screenshot 2026-05-14 151459.png"
