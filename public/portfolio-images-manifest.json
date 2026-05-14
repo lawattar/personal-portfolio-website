@@ -42,8 +42,9 @@
     "/portfolio-images/computer-building/preview/IMG_4326.jpg"
   ],
   "computer-building/slides": [
-    "/portfolio-images/computer-building/slides/0.mp4",
-    "/portfolio-images/computer-building/slides/1.jpg"
+    "/portfolio-images/computer-building/slides/1.mp4",
+    "/portfolio-images/computer-building/slides/2.jpg",
+    "/portfolio-images/computer-building/slides/3.png"
   ],
   "custom-linear-actuators/preview": [
     "/portfolio-images/custom-linear-actuators/preview/Corner View.png"
@@ -66,16 +67,27 @@
     "/portfolio-images/custom-v-twin-motorcycle-engine/slides/2.png",
     "/portfolio-images/custom-v-twin-motorcycle-engine/slides/3.mp4",
     "/portfolio-images/custom-v-twin-motorcycle-engine/slides/4.png",
-    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/5.gif"
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/5.gif",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/6.png",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/7.png",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/8.png",
+    "/portfolio-images/custom-v-twin-motorcycle-engine/slides/9.png"
+  ],
+  "cwru-lifts/preview": [
+    "/portfolio-images/cwru-lifts/preview/vector (transparent back) (2).png"
   ],
   "cwru-lifts/slides": [
-    "/portfolio-images/cwru-lifts/slides/Photo Video Dump Generic Personal Instagram Reel in Pink White Black Elegant Serif Style (17) (1) (1).MP4"
+    "/portfolio-images/cwru-lifts/slides/1.png",
+    "/portfolio-images/cwru-lifts/slides/2.MP4"
   ],
   "cwru-motorsports-led-sign/slides": [
     "/portfolio-images/cwru-motorsports-led-sign/slides/IMG_6113.jpg"
   ],
   "food-bank/preview": [
     "/portfolio-images/food-bank/preview/484167535_1093374285925247_5825486658853122881_n.jpg"
+  ],
+  "food-bank/slides": [
+    "/portfolio-images/food-bank/slides/1.jpg"
   ],
   "greek-lithophane-lamps/preview": [
     "/portfolio-images/greek-lithophane-lamps/preview/2025-01-03_062d2cabfd5a3.webp"
@@ -91,14 +103,26 @@
   "life-guard/preview": [
     "/portfolio-images/life-guard/preview/500297927_1341195988006591_7632106801698739746_n.jpg"
   ],
+  "life-guard/slides": [
+    "/portfolio-images/life-guard/slides/1.jpg"
+  ],
   "life-guard-supervisor/preview": [
     "/portfolio-images/life-guard-supervisor/preview/500297927_1341195988006591_7632106801698739746_n.jpg"
+  ],
+  "life-guard-supervisor/slides": [
+    "/portfolio-images/life-guard-supervisor/slides/1.jpg"
   ],
   "lincoln-electric/preview": [
     "/portfolio-images/lincoln-electric/preview/card preview.svg"
   ],
   "lincoln-electric/slides": [
     "/portfolio-images/lincoln-electric/slides/1.svg"
+  ],
+  "msa/preview": [
+    "/portfolio-images/msa/preview/1.png"
+  ],
+  "msa/slides": [
+    "/portfolio-images/msa/slides/1.png"
   ],
   "powerlifting/slides": [
     "/portfolio-images/powerlifting/slides/IMG_6465.mp4"
@@ -120,6 +144,9 @@
   ],
   "scribeamerica/preview": [
     "/portfolio-images/scribeamerica/preview/ScribeAmerica.jpg"
+  ],
+  "scribeamerica/slides": [
+    "/portfolio-images/scribeamerica/slides/ScribeAmerica.jpg"
   ],
   "sr25-steering-wheel/preview": [
     "/portfolio-images/sr25-steering-wheel/preview/LMF05437-3 shrunk.jpg"

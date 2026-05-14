@@ -78,6 +78,14 @@ const projectsByTab = {
       tags: ["Electrical", "Fabrication", "Branding"],
     },
     {
+      key: "geometric-led-wall-panels",
+      title: "Geometric LED Wall Panels",
+      image: "/images/projects/geometric-led-wall-panels.svg",
+      description:
+        "Modular geometric LED wall panel system with focus on repeatable fabrication, clean wiring, and visual impact.",
+      tags: ["Lighting", "Electronics", "Fabrication"],
+    },
+    {
       key: "greek-lithophane-lamps",
       title: "Greek Lithophane Lamps",
       image: "/images/projects/greek-lithophane-lamps.svg",
@@ -269,12 +277,14 @@ const projectDetails = {
     summary: "Custom linear actuator development and integration details.",
     points: ["Force and stroke tradeoffs", "Packaging and mounting", "Reliability and repeatability"],
     mediaFolder: "custom-linear-actuators",
+    mediaTypeToggle: true,
   },
   "baja-sae-motion-sim": {
     summary: "Motion simulation stack with hardware/software integration.",
     points: ["Vehicle dynamics integration", "Telemetry and controls workflow", "Validation tests"],
     mediaFolder: "baja-sae-motion-sim",
     customSlidesPlacement: "split-first-last",
+    mediaTypeToggle: true,
     slides: [
       {
         type: "embed",
@@ -302,6 +312,11 @@ const projectDetails = {
     summary: "Design and build details for the LED sign project.",
     points: ["Enclosure design", "Power and wiring layout", "Mounting approach"],
     mediaFolder: "cwru-motorsports-led-sign",
+  },
+  "geometric-led-wall-panels": {
+    summary: "Geometric LED wall panel concept, build process, and electronics integration.",
+    points: ["Modular panel architecture", "Power distribution and wiring", "Fabrication and assembly workflow"],
+    mediaFolder: "geometric-led-wall-panels",
   },
   "greek-lithophane-lamps": {
     summary: "Parametric design and print outcomes for lithophane lamps.",
@@ -1385,9 +1400,9 @@ const getProjectModalContent = async (projectKey) => {
     ];
   }
 
-  if (projectKey === "baja-sae-motion-sim") {
-    const videoSlides = customSlides.filter((slide) => slide && (slide.type === "embed" || slide.type === "video"));
-    const pictureSlides = autoSlides.filter((slide) => slide && slide.type === "image");
+  if (detail.mediaTypeToggle === true) {
+    const videoSlides = slides.filter((slide) => slide && (slide.type === "embed" || slide.type === "video"));
+    const pictureSlides = slides.filter((slide) => slide && slide.type === "image");
 
     const groups = [];
     if (videoSlides.length > 0) {
