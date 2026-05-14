@@ -1,0 +1,56 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Earth Temperature JSON Project 03</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+        }
+    </style>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js",
+                "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+<body>
+    <div id="app-title">How hot is it? 🥵</div>
+    <div id="texture-menu">
+        <div class="menu-section">
+            <h3>Color Map</h3>
+            <div class="button-group">
+                <button data-map-type="color" data-texture-name="00_earthmap1k.jpg">Earth</button>
+                <button data-map-type="color" data-texture-name="04_rainbow1k.jpg">Rainbow</button>
+                <button data-map-type="color" data-texture-name="03_earthlights1k.jpg">Lights</button>
+                <button data-map-type="color" data-texture-name="01_earthbump1k.jpg">Bump</button>
+                <button data-map-type="color" data-texture-name="02_earthspec1k.jpg">Spec</button>
+            </div>
+        </div>
+        <div class="menu-section">
+            <h3>Elevation Map</h3>
+            <div class="button-group">
+                <button data-map-type="elev" data-texture-name="01_earthbump1k.jpg">Bump</button>
+                <button data-map-type="elev" data-texture-name="00_earthmap1k.jpg">Earth</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="city-input-container">
+        <input type="text" id="city-name-input" placeholder="Enter City Name (e.g., Cleveland)">
+        <button id="show-temp-button">Show Temperature</button>
+    </div>
+
+    <div id="info-overlay" style="display:none;">
+        <button id="close-overlay">X</button>
+        <h4 id="overlay-location"></h4>
+        <p id="overlay-temp"></p>
+    </div>
+
+    </body>
+</html>

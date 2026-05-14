@@ -127,6 +127,12 @@
   "powerlifting/slides": [
     "/portfolio-images/powerlifting/slides/IMG_6465.mp4"
   ],
+  "pygame-pacman/preview": [
+    "/portfolio-images/pygame-pacman/preview/830e56f818cdc22f51b810386e7dd20e.jpg"
+  ],
+  "pygame-pacman/slides": [
+    "/portfolio-images/pygame-pacman/slides/1.jpg"
+  ],
   "redbull-f1-steering-wheel-replica/preview": [
     "/portfolio-images/redbull-f1-steering-wheel-replica/preview/Screenshot 2026-05-13 010618.png"
   ],
@@ -184,5 +190,11 @@
     "/portfolio-images/sr26-steering-wheel/slides/16.jpg",
     "/portfolio-images/sr26-steering-wheel/slides/17.JPG",
     "/portfolio-images/sr26-steering-wheel/slides/18.JPG"
+  ],
+  "stm32-linear-actuator-controller/preview": [
+    "/portfolio-images/stm32-linear-actuator-controller/preview/Screenshot 2026-05-14 151611.png"
+  ],
+  "threejs-global-temperature-ui/preview": [
+    "/portfolio-images/threejs-global-temperature-ui/preview/Screenshot 2026-05-14 151459.png"
   ]
 }

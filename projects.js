@@ -332,6 +332,14 @@ const projectDetails = {
     summary: "Global temperature data UI built with Three.js for interactive climate exploration.",
     points: ["3D globe rendering", "Temperature data mapping", "Interactive camera and UI controls"],
     mediaFolder: "threejs-global-temperature-ui",
+    customSlidesPlacement: "prepend",
+    slides: [
+      {
+        type: "embed",
+        src: "/portfolio-images/threejs-global-temperature-ui/slides/embed/index.html",
+        caption: "Interactive embedded demo",
+      },
+    ],
   },
   "stm32-linear-actuator-controller": {
     summary: "STM32-based actuator controller focused on robust motion control and tuning workflow.",
