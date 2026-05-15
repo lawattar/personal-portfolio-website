@@ -33,7 +33,7 @@ const projectsByTab = {
       title: "SR25 Steering Wheel",
       image: "/images/projects/sr25-steering-wheel.svg",
       description:
-        "First-generation BAJA steering wheel with a 4.3\" display, 6 push buttons, and 3 rotary knobs.",
+        "First-generation BAJA steering wheel featuring a 4.3\" display, 6 push buttons, and 3 rotary knobs.",
       tags: ["Mechanical", "CAD", "Embedded"],
     },
     {
@@ -193,13 +193,6 @@ const projectsByTab = {
       tags: ["Service", "Community", "Impact"],
     },
     {
-      key: "food-bank",
-      title: "CWRU Food Pantry",
-      image: "/images/projects/food-bank.svg",
-      description: "Volunteered to organize and stock the CWRU community food pantry.",
-      tags: ["Community", "Logistics", "Volunteer"],
-    },
-    {
       key: "computer-building",
       title: "Computer Building",
       image: "/images/projects/computer-building.svg",
@@ -241,10 +234,24 @@ const projectsByTab = {
     },
     {
       key: "msa",
-      title: "MSA",
+      title: "CWRU MSA",
       image: "/images/projects/msa.svg",
       description: "Helped unite Muslims across campus by planning and running club events and fundraisers.",
       tags: ["Leadership", "Community", "Organization"],
+    },
+    {
+      key: "case-surgical-society",
+      title: "Case Surgical Society",
+      image: "/images/projects/case-surgical-society.svg",
+      description: "Surgical-interest club involvement with events, hands-on sessions, and student collaboration.",
+      tags: ["Surgery", "Club", "Leadership"],
+    },
+    {
+      key: "food-bank",
+      title: "Center for Civic Engagement & Learning",
+      image: "/images/projects/food-bank.svg",
+      description: "Volunteered to organize and stock the CWRU community food pantry.",
+      tags: ["Community", "Logistics", "Volunteer"],
     },
   ],
 };
@@ -416,6 +423,11 @@ const projectDetails = {
     points: ["Event planning", "Team coordination", "Community engagement"],
     mediaFolder: "msa",
   },
+  "case-surgical-society": {
+    summary: "Case Surgical Society activities, events, and learning highlights.",
+    points: ["Hands-on sessions", "Mentorship and networking", "Medical interest development"],
+    mediaFolder: "case-surgical-society",
+  },
 };
 
 const modalState = {
@@ -444,6 +456,50 @@ const PARTICLE_BACKGROUND_CONFIG = {
   enabled: true,
   containerId: "particles-js",
   settingsPath: "/Files/Background/settings json.txt",
+};
+// Page background mode.
+// `useGradient: false` => plain black (default)
+// `useGradient: true`  => original blue gradient
+const PAGE_BACKGROUND_CONFIG = {
+  useGradient: false,
+};
+// Shooting star controls:
+// - `enabled`: master toggle
+// - `density`: higher = more frequent streaks
+// - `quantityMin` / `quantityMax`: stars per burst
+// - `opacityMin` / `opacityMax`: head brightness range
+// - `color`: base streak color
+// - `angleDeg` (+ jitter): streak direction
+const SHOOTING_STARS_CONFIG = {
+  enabled: false,
+  density: 1,
+  quantityMin: 1,
+  quantityMax: 2,
+  minSpawnDelayMs: 4200,
+  maxSpawnDelayMs: 9800,
+  maxConcurrent: 3,
+  color: "#dcecff",
+  opacityMin: 0.5,
+  opacityMax: 0.95,
+  trailMidOpacityFactor: 0.42,
+  trailMidStopPercent: 58,
+  trailLengthMinPx: 140,
+  trailLengthMaxPx: 290,
+  thicknessMinPx: 1.2,
+  thicknessMaxPx: 2.8,
+  glowBlurMinPx: 5,
+  glowBlurMaxPx: 12,
+  angleDeg: 40,
+  angleJitterDeg: 10,
+  minDurationMs: 900,
+  maxDurationMs: 1700,
+  minTravelPx: 260,
+  maxTravelPx: 560,
+  startXMinPercent: 56,
+  startXMaxPercent: 110,
+  startYMinPercent: -4,
+  startYMaxPercent: 42,
+  respectReducedMotion: true,
 };
 
 // Code-only card visibility controls by tab.
@@ -474,6 +530,11 @@ const bajaShowcaseState = {
   loading: false,
   isSliding: false,
   slideToken: 0,
+};
+const shootingStarsState = {
+  layer: null,
+  timerId: null,
+  activeCount: 0,
 };
 
 const createProjectCard = (project) => {
@@ -933,6 +994,184 @@ const toPublicAssetUrl = (assetPath) => {
   const normalizedBase = APP_BASE_URL.endsWith("/") ? APP_BASE_URL : `${APP_BASE_URL}/`;
   const normalizedPath = assetPath.replace(/^\/+/, "");
   return `${normalizedBase}${normalizedPath}`;
+};
+
+const applyPageBackgroundMode = () => {
+  document.body.classList.toggle("use-gradient-background", PAGE_BACKGROUND_CONFIG.useGradient === true);
+};
+
+const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+const getRandomRange = (min, max) => Math.random() * (max - min) + min;
+const getRandomIntInclusive = (min, max) => Math.floor(getRandomRange(min, max + 1));
+
+const parseCssColorToRgb = (() => {
+  const canvas = document.createElement("canvas");
+  const context = canvas.getContext("2d");
+
+  return (color) => {
+    const fallback = { r: 220, g: 236, b: 255 };
+    if (!context) return fallback;
+
+    context.fillStyle = "#ffffff";
+    context.fillStyle = color;
+    const normalized = String(context.fillStyle || "").trim();
+
+    const hexMatch = normalized.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+    if (hexMatch) {
+      const hex = hexMatch[1];
+      if (hex.length === 3) {
+        return {
+          r: Number.parseInt(`${hex[0]}${hex[0]}`, 16),
+          g: Number.parseInt(`${hex[1]}${hex[1]}`, 16),
+          b: Number.parseInt(`${hex[2]}${hex[2]}`, 16),
+        };
+      }
+      return {
+        r: Number.parseInt(hex.slice(0, 2), 16),
+        g: Number.parseInt(hex.slice(2, 4), 16),
+        b: Number.parseInt(hex.slice(4, 6), 16),
+      };
+    }
+
+    const rgbMatch = normalized.match(/rgba?\(([^)]+)\)/i);
+    if (rgbMatch) {
+      const channels = rgbMatch[1]
+        .split(",")
+        .slice(0, 3)
+        .map((token) => Number.parseFloat(token.trim()));
+      if (channels.length === 3 && channels.every((value) => Number.isFinite(value))) {
+        return {
+          r: clamp(Math.round(channels[0]), 0, 255),
+          g: clamp(Math.round(channels[1]), 0, 255),
+          b: clamp(Math.round(channels[2]), 0, 255),
+        };
+      }
+    }
+
+    return fallback;
+  };
+})();
+
+const clearShootingStarsTimer = () => {
+  if (shootingStarsState.timerId !== null) {
+    window.clearTimeout(shootingStarsState.timerId);
+    shootingStarsState.timerId = null;
+  }
+};
+
+const getShootingStarsSpawnDelay = () => {
+  const density = Math.max(0.05, SHOOTING_STARS_CONFIG.density);
+  const minDelay = Math.max(120, SHOOTING_STARS_CONFIG.minSpawnDelayMs / density);
+  const maxDelay = Math.max(minDelay, SHOOTING_STARS_CONFIG.maxSpawnDelayMs / density);
+  return getRandomRange(minDelay, maxDelay);
+};
+
+const spawnOneShootingStar = () => {
+  const layer = shootingStarsState.layer;
+  if (!layer) return;
+  if (shootingStarsState.activeCount >= SHOOTING_STARS_CONFIG.maxConcurrent) return;
+
+  const star = document.createElement("span");
+  star.className = "shooting-star";
+
+  const angle =
+    SHOOTING_STARS_CONFIG.angleDeg +
+    getRandomRange(-SHOOTING_STARS_CONFIG.angleJitterDeg, SHOOTING_STARS_CONFIG.angleJitterDeg);
+  const angleRad = (angle * Math.PI) / 180;
+  const travel = getRandomRange(SHOOTING_STARS_CONFIG.minTravelPx, SHOOTING_STARS_CONFIG.maxTravelPx);
+  const dx = Math.cos(angleRad) * travel;
+  const dy = Math.sin(angleRad) * travel;
+
+  const startX =
+    (getRandomRange(SHOOTING_STARS_CONFIG.startXMinPercent, SHOOTING_STARS_CONFIG.startXMaxPercent) / 100) *
+    window.innerWidth;
+  const startY =
+    (getRandomRange(SHOOTING_STARS_CONFIG.startYMinPercent, SHOOTING_STARS_CONFIG.startYMaxPercent) / 100) *
+    window.innerHeight;
+
+  const duration = getRandomRange(SHOOTING_STARS_CONFIG.minDurationMs, SHOOTING_STARS_CONFIG.maxDurationMs);
+  const tailLength = getRandomRange(SHOOTING_STARS_CONFIG.trailLengthMinPx, SHOOTING_STARS_CONFIG.trailLengthMaxPx);
+  const thickness = getRandomRange(SHOOTING_STARS_CONFIG.thicknessMinPx, SHOOTING_STARS_CONFIG.thicknessMaxPx);
+  const blur = getRandomRange(SHOOTING_STARS_CONFIG.glowBlurMinPx, SHOOTING_STARS_CONFIG.glowBlurMaxPx);
+  const opacity = clamp(
+    getRandomRange(SHOOTING_STARS_CONFIG.opacityMin, SHOOTING_STARS_CONFIG.opacityMax),
+    0,
+    1,
+  );
+  const rgb = parseCssColorToRgb(SHOOTING_STARS_CONFIG.color);
+  const midOpacity = clamp(opacity * SHOOTING_STARS_CONFIG.trailMidOpacityFactor, 0, 1);
+  const midStop = clamp(SHOOTING_STARS_CONFIG.trailMidStopPercent, 8, 95);
+
+  star.style.setProperty("--shoot-start-x", `${startX}px`);
+  star.style.setProperty("--shoot-start-y", `${startY}px`);
+  star.style.setProperty("--shoot-dx", `${dx}px`);
+  star.style.setProperty("--shoot-dy", `${dy}px`);
+  star.style.setProperty("--shoot-angle", `${angle}deg`);
+  star.style.setProperty("--shoot-duration", `${duration}ms`);
+  star.style.setProperty("--shoot-tail-length", `${tailLength}px`);
+  star.style.setProperty("--shoot-thickness", `${thickness}px`);
+  star.style.setProperty("--shoot-blur", `${blur}px`);
+  star.style.setProperty("--shoot-opacity", opacity.toFixed(3));
+  star.style.background = `linear-gradient(90deg, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity.toFixed(
+    3,
+  )}) 0%, rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${midOpacity.toFixed(3)}) ${midStop}%, rgba(${rgb.r}, ${
+    rgb.g
+  }, ${rgb.b}, 0) 100%)`;
+
+  shootingStarsState.activeCount += 1;
+  star.addEventListener(
+    "animationend",
+    () => {
+      shootingStarsState.activeCount = Math.max(0, shootingStarsState.activeCount - 1);
+      star.remove();
+    },
+    { once: true },
+  );
+
+  layer.appendChild(star);
+};
+
+const spawnShootingStarBurst = () => {
+  if (document.visibilityState !== "visible") return;
+  const quantity = clamp(
+    getRandomIntInclusive(SHOOTING_STARS_CONFIG.quantityMin, SHOOTING_STARS_CONFIG.quantityMax),
+    1,
+    12,
+  );
+  for (let index = 0; index < quantity; index += 1) {
+    if (shootingStarsState.activeCount >= SHOOTING_STARS_CONFIG.maxConcurrent) break;
+    spawnOneShootingStar();
+  }
+};
+
+const scheduleNextShootingStarsBurst = () => {
+  clearShootingStarsTimer();
+  if (!SHOOTING_STARS_CONFIG.enabled || !shootingStarsState.layer) return;
+  shootingStarsState.timerId = window.setTimeout(() => {
+    spawnShootingStarBurst();
+    scheduleNextShootingStarsBurst();
+  }, getShootingStarsSpawnDelay());
+};
+
+const initShootingStars = () => {
+  clearShootingStarsTimer();
+  shootingStarsState.activeCount = 0;
+
+  if (shootingStarsState.layer) {
+    shootingStarsState.layer.remove();
+    shootingStarsState.layer = null;
+  }
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!SHOOTING_STARS_CONFIG.enabled) return;
+  if (SHOOTING_STARS_CONFIG.respectReducedMotion && prefersReducedMotion) return;
+
+  const layer = document.createElement("div");
+  layer.className = "shooting-stars-layer";
+  document.body.appendChild(layer);
+  shootingStarsState.layer = layer;
+
+  scheduleNextShootingStarsBurst();
 };
 
 const initParticleBackground = async () => {
@@ -1725,7 +1964,9 @@ renderPanels();
 setActiveTab(getInitialTab());
 initBajaShowcase();
 loadPortfolioImagesManifest();
+applyPageBackgroundMode();
 initParticleBackground();
+initShootingStars();
 
 function updateScrollHintVisibility() {
   if (!scrollHint) return;
@@ -1746,4 +1987,11 @@ function updateScrollHintVisibility() {
 
 window.addEventListener("scroll", updateScrollHintVisibility, { passive: true });
 window.addEventListener("resize", updateScrollHintVisibility);
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    scheduleNextShootingStarsBurst();
+  } else {
+    clearShootingStarsTimer();
+  }
+});
 window.setTimeout(updateScrollHintVisibility, 0);

@@ -24,11 +24,17 @@ body {
   isolation: isolate;
   color: var(--text-primary);
   font-family: "SF Pro Display", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Default background mode: plain black */
+  background: #01030a;
+  overflow-x: hidden;
+}
+
+/* Optional background mode: original blue gradient */
+body.use-gradient-background {
   background:
     radial-gradient(circle at 18% 8%, var(--bg-2) 0%, transparent 38%),
     radial-gradient(circle at 86% 18%, #101f39 0%, transparent 35%),
     linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 60%, #01030a 100%);
-  overflow-x: hidden;
 }
 
 #particles-js {
@@ -44,6 +50,57 @@ body {
   display: block;
   width: 100% !important;
   height: 100% !important;
+}
+
+.shooting-stars-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.shooting-star {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--shoot-tail-length, 220px);
+  height: var(--shoot-thickness, 2px);
+  border-radius: 999px;
+  opacity: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(220, 236, 255, 0.95) 0%,
+    rgba(170, 205, 255, 0.45) 55%,
+    rgba(170, 205, 255, 0) 100%
+  );
+  filter: drop-shadow(0 0 var(--shoot-blur, 7px) rgba(158, 204, 255, 0.52));
+  transform: translate3d(var(--shoot-start-x, 0px), var(--shoot-start-y, 0px), 0) rotate(var(--shoot-angle, 140deg));
+  transform-origin: left center;
+  will-change: transform, opacity;
+  animation: shooting-star-streak var(--shoot-duration, 1400ms) ease-out forwards;
+}
+
+@keyframes shooting-star-streak {
+  0% {
+    opacity: 0;
+    transform: translate3d(var(--shoot-start-x, 0px), var(--shoot-start-y, 0px), 0) rotate(var(--shoot-angle, 140deg));
+  }
+  8% {
+    opacity: var(--shoot-opacity, 0.9);
+  }
+  68% {
+    opacity: calc(var(--shoot-opacity, 0.9) * 0.72);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(
+        calc(var(--shoot-start-x, 0px) + var(--shoot-dx, -380px)),
+        calc(var(--shoot-start-y, 0px) + var(--shoot-dy, 380px)),
+        0
+      )
+      rotate(var(--shoot-angle, 140deg));
+  }
 }
 
 body.modal-open {
@@ -747,6 +804,12 @@ body.modal-open {
 .media-modal[data-project-key="custom-v-twin-motorcycle-engine"] .media-modal-download {
   font-size: 1rem;
   padding: 0.62rem 1.18rem;
+  min-height: 2.3rem;
+}
+
+.media-modal[data-project-key="greek-lithophane-lamps"] .media-modal-download {
+  font-size: 1rem;
+  padding: 0.62rem 1.22rem;
   min-height: 2.3rem;
 }
 

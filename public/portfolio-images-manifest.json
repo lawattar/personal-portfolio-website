@@ -38,6 +38,12 @@
     "/portfolio-images/baja-sae-motion-sim/slides/5.jpg",
     "/portfolio-images/baja-sae-motion-sim/slides/6.PNG"
   ],
+  "case-surgical-society/preview": [
+    "/portfolio-images/case-surgical-society/preview/609a1eed-7cd0-4d7a-96ec-8a68edec4471.png"
+  ],
+  "case-surgical-society/slides": [
+    "/portfolio-images/case-surgical-society/slides/609a1eed-7cd0-4d7a-96ec-8a68edec4471.png"
+  ],
   "computer-building/preview": [
     "/portfolio-images/computer-building/preview/IMG_4326.jpg"
   ],
@@ -79,10 +85,15 @@
   "cwru-lifts/slides": [
     "/portfolio-images/cwru-lifts/slides/1.png",
     "/portfolio-images/cwru-lifts/slides/2.png",
-    "/portfolio-images/cwru-lifts/slides/3.MP4"
+    "/portfolio-images/cwru-lifts/slides/3.png",
+    "/portfolio-images/cwru-lifts/slides/4.MP4"
+  ],
+  "cwru-motorsports-led-sign/preview": [
+    "/portfolio-images/cwru-motorsports-led-sign/preview/IMG_7146.jpg"
   ],
   "cwru-motorsports-led-sign/slides": [
-    "/portfolio-images/cwru-motorsports-led-sign/slides/IMG_6113.jpg"
+    "/portfolio-images/cwru-motorsports-led-sign/slides/1.mov",
+    "/portfolio-images/cwru-motorsports-led-sign/slides/2.jpg"
   ],
   "food-bank/preview": [
     "/portfolio-images/food-bank/preview/484167535_1093374285925247_5825486658853122881_n.jpg"
@@ -130,7 +141,9 @@
     "/portfolio-images/msa/preview/1.png"
   ],
   "msa/slides": [
-    "/portfolio-images/msa/slides/1.png"
+    "/portfolio-images/msa/slides/1.png",
+    "/portfolio-images/msa/slides/2.png",
+    "/portfolio-images/msa/slides/3.png"
   ],
   "powerlifting/preview": [
     "/portfolio-images/powerlifting/preview/Screenshot 2026-05-14 203307.png"
