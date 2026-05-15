@@ -17,7 +17,7 @@ const projectsByTab = {
       title: "BAJA SAE Motion Sim",
       image: "/images/projects/baja-motion-sim.svg",
       description:
-        "Motion platform and simulation workflow for driver training and system validation using vehicle dynamics and control tuning.",
+        "Motion simulation platform designed for Baja SAE driver development using custom actuators, STM32 controls, and real-time telemetry integration.",
       tags: ["Simulation", "Controls", "Testing"],
     },
     {
@@ -25,7 +25,7 @@ const projectsByTab = {
       title: "SR26 Steering Wheel",
       image: "/images/projects/sr26-steering-wheel.svg",
       description:
-        "Next-generation wheel architecture focused on packaging efficiency, improved controls, and cleaner manufacturing flow.",
+        "Second-generation BAJA steering wheel focused on packaging efficiency, manufacturability, and improved driver ergonomics.",
       tags: ["Design", "DFM", "Revision"],
     },
     {
@@ -33,7 +33,7 @@ const projectsByTab = {
       title: "SR25 Steering Wheel",
       image: "/images/projects/sr25-steering-wheel.svg",
       description:
-        "Complete steering wheel package: ergonomic layout, button mapping, electronics integration, and iterative enclosure design.",
+        "First-generation BAJA steering wheel with a 4.3\" display, 6 push buttons, and 3 rotary knobs.",
       tags: ["Mechanical", "CAD", "Embedded"],
     },
     {
@@ -41,7 +41,7 @@ const projectsByTab = {
       title: "Custom Linear Actuators",
       image: "/images/projects/custom-linear-actuators.svg",
       description:
-        "Custom actuator design focused on force delivery, packaging constraints, motion control, and durability for repeated operation.",
+        "Designed and manufactured custom high-speed linear actuators for motion simulation based on an open-source GitHub project.",
       tags: ["Mechanisms", "Motion", "Design"],
     },
     {
@@ -49,7 +49,7 @@ const projectsByTab = {
       title: "RedBull F1 Steering Wheel Replica",
       image: "/images/projects/redbull-f1-steering-wheel-replica.svg",
       description:
-        "Replica steering wheel build focused on packaging, controls layout, and visual fidelity inspired by modern F1 interfaces.",
+        "Custom F1 wheel replica using models from Pokornyi Engineering. This was my first steering wheel project, and served as a strong foundation for my future BAJA designs.",
       tags: ["Replica", "Controls", "CAD"],
     },
     {
@@ -57,7 +57,7 @@ const projectsByTab = {
       title: "Custom V-Twin Motorcycle Engine",
       image: "/images/projects/custom-v-twin-engine.svg",
       description:
-        "Long-horizon concept-to-prototype engine project with CAD modeling, subsystem studies, and manufacturability planning.",
+        "Custom V-twin engine modeled from the ground up with emphasis on thermodynamic modeling, manufacturability, mechanical analysis, and market feasibility.",
       tags: ["Powertrain", "CAD", "Manufacturing"],
     },
     {
@@ -65,7 +65,7 @@ const projectsByTab = {
       title: "Agricultural Drone Design",
       image: "/images/projects/agricultural-drone-design.svg",
       description:
-        "Concept and system design for an agricultural drone platform focused on stability, payload integration, and field operations.",
+        "Heavy-lift agricultural drone concept designed around payload capacity, power systems, and long-endurance flight.",
       tags: ["Aerospace", "Systems", "Design"],
     },
     {
@@ -73,7 +73,7 @@ const projectsByTab = {
       title: "CWRU Motorsports LED Sign",
       image: "/images/projects/cwru-led-sign.svg",
       description:
-        "Custom LED branding fixture with enclosure design, mounting strategy, and clean wiring approach for event display.",
+        "Custom designed and manufactured a CWRU BAJA sign to display in our team workspace in Sears think[box].",
       tags: ["Electrical", "Fabrication", "Branding"],
     },
     {
@@ -81,7 +81,7 @@ const projectsByTab = {
       title: "Geometric LED Wall Panels",
       image: "/images/projects/geometric-led-wall-panels.svg",
       description:
-        "Modular geometric LED wall panel system with focus on repeatable fabrication, clean wiring, and visual impact.",
+        "My first LED project using WS2815 LEDs and an ESP32 running WLED. Lighting modes can be controlled via a mobile app.",
       tags: ["Lighting", "Electronics", "Fabrication"],
     },
     {
@@ -89,7 +89,7 @@ const projectsByTab = {
       title: "Greek Lithophane Lamps",
       image: "/images/projects/greek-lithophane-lamps.svg",
       description:
-        "Parametric lamp designs balancing printable geometry, material diffusion, and ornamental visual detail.",
+        "Lamps designed around the Bambu Lab MH001 LED Lamp Kit that came with my P1S 3D printer.",
       tags: ["3D Print", "Parametric", "Product"],
     },
   ],
@@ -133,7 +133,7 @@ const projectsByTab = {
       title: "Three.js Global Temperature UI",
       image: "/images/projects/threejs-global-temperature-ui.svg",
       description:
-        "Interactive Three.js climate visualization interface focused on responsive data storytelling and real-time rendering.",
+        "Interactive Three.js globe with controllable elevation parameters that pinpoints temperature and location based on user input.",
       tags: ["Three.js", "Data Viz", "UI"],
       externalLinks: [{ label: "View Repo", href: "https://github.com/lawattar" }],
     },
@@ -142,7 +142,7 @@ const projectsByTab = {
       title: "STM32 Linear Actuator Controller",
       image: "/images/projects/stm32-linear-actuator-controller.svg",
       description:
-        "Embedded control system on STM32 for linear actuator motion, tuning, and hardware-in-the-loop validation.",
+        "Custom STM32 array and electronics enclosure used to control my BAJA simulator linear actuators. This was based upon open source  code that I improved using hardware timers.",
       tags: ["STM32", "Embedded", "Controls"],
       externalLinks: [{ label: "View Repo", href: "https://github.com/lawattar" }],
     },
@@ -151,7 +151,7 @@ const projectsByTab = {
       title: "pygame Pacman",
       image: "/images/projects/pygame-pacman.svg",
       description:
-        "Arcade-style Pacman implementation in pygame with gameplay logic, collision handling, and animation states.",
+        "Custom version of Pacman that I coded in python/pygame during high school.",
       tags: ["Python", "Pygame", "Game Dev"],
       externalLinks: [{ label: "View Repo", href: "https://github.com/lawattar" }],
     },
@@ -161,28 +161,28 @@ const projectsByTab = {
       key: "lincoln-electric",
       title: "Lincoln Electric",
       image: "/images/projects/lincoln-electric.svg",
-      description: "Hands-on engineering and technical workflow exposure in an industrial manufacturing environment.",
+      description: "Tool Design and Plant Engineering Intern",
       tags: ["Manufacturing", "Engineering", "Industry"],
     },
     {
       key: "scribeamerica",
       title: "ScribeAmerica",
       image: "/images/projects/scribe-america.svg",
-      description: "Medical documentation support with focus on communication quality and detail accuracy.",
+      description: "MetroHealth Emergency Room Medical Scribe",
       tags: ["Documentation", "Medical", "Detail"],
     },
     {
       key: "life-guard",
       title: "Life Guard",
       image: "/images/projects/lifeguard.svg",
-      description: "Water safety operations, emergency response, and public safety management.",
+      description: "Rocky River Recreation Center Life Guard",
       tags: ["Safety", "Operations", "Leadership"],
     },
     {
       key: "life-guard-supervisor",
       title: "Life Guard Supervisor",
       image: "/images/projects/lifeguard-supervisor.svg",
-      description: "Shift supervision, team coordination, and escalation handling during active pool operations.",
+      description: "Supervised life guards and maintained water chemical levels.",
       tags: ["Supervision", "Training", "Responsibility"],
     },
     {
@@ -196,21 +196,21 @@ const projectsByTab = {
       key: "food-bank",
       title: "CWRU Food Pantry",
       image: "/images/projects/food-bank.svg",
-      description: "Food distribution and support initiatives for local communities.",
+      description: "Volunteered to organize and stock the CWRU community food pantry.",
       tags: ["Community", "Logistics", "Volunteer"],
     },
     {
       key: "computer-building",
       title: "Computer Building",
       image: "/images/projects/computer-building.svg",
-      description: "Custom PC builds, part selection, assembly, validation, and troubleshooting.",
+      description: "Planned and built 8 computers for family members and friends.",
       tags: ["Hardware", "Build", "Troubleshooting"],
     },
     {
       key: "arabic-art-and-calligraphies",
       title: "Arabic Art and Calligraphies",
       image: "/images/projects/arabic-art-calligraphy.svg",
-      description: "Creative and cultural visual work across calligraphy and design pieces.",
+      description: "Designed and manufactured Arabic calligraphies, graduation plaques, and keychains.",
       tags: ["Art", "Calligraphy", "Creative"],
     },
   ],
@@ -219,14 +219,15 @@ const projectsByTab = {
       key: "powerlifting",
       title: "Powerlifting",
       image: "/images/projects/powerlifting.svg",
-      description: "Powerlifting training blocks, meets, and strength progression highlights.",
+      description:
+        "I am passionate about the gym and have helped set up and run numerous powerlifting events around Cleveland and CWRU.",
       tags: ["Strength", "Training", "Competition"],
     },
     {
       key: "rugby",
       title: "Rugby",
       image: "/images/projects/rugby.svg",
-      description: "CWRU Rugby training, matches, and team development highlights.",
+      description: "Competed on the CWRU Rugby team throughout college.",
       tags: ["CWRU", "Rugby", "Teamwork"],
     },
   ],
@@ -235,14 +236,14 @@ const projectsByTab = {
       key: "cwru-lifts",
       title: "CWRU Lift",
       image: "/images/projects/cwru-lifts.svg",
-      description: "Lifting events, competition videos, and promotional flyers.",
+      description: "Held an executive position every year during college, including social media and design roles.",
       tags: ["Lifting", "Events", "Media"],
     },
     {
       key: "msa",
       title: "MSA",
       image: "/images/projects/msa.svg",
-      description: "Leadership and community programming through MSA initiatives.",
+      description: "Helped unite Muslims across campus by planning and running club events and fundraisers.",
       tags: ["Leadership", "Community", "Organization"],
     },
   ],
