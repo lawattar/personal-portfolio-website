@@ -957,6 +957,11 @@ const projectDetails = {
         type: "embed",
         src: "/portfolio-images/threejs-global-temperature-ui/slides/embed/index.html",
         caption: "Interactive embedded demo",
+        mobileFallback: {
+          href: "https://codepen.io/Laith-Wattar/pen/RNWRRPX",
+          label: "Open CodePen Demo",
+          warning: "Recommended to view on desktop",
+        },
       },
     ],
   },
@@ -1587,6 +1592,8 @@ const resetBajaShowcaseSlidePositions = () => {
   if (!bajaShowcaseCurrentImage || !bajaShowcaseNextImage) return;
   bajaShowcaseCurrentImage.style.transition = "none";
   bajaShowcaseNextImage.style.transition = "none";
+  bajaShowcaseCurrentImage.style.opacity = "1";
+  bajaShowcaseNextImage.style.opacity = "1";
   bajaShowcaseCurrentImage.style.transform = "translateX(0)";
   bajaShowcaseNextImage.style.transform = "translateX(100%)";
   bajaShowcaseNextImage.style.visibility = "hidden";
@@ -1655,18 +1662,77 @@ const renderBajaShowcaseSlide = ({ animate = false, direction = 1 } = {}) => {
   const startOffset = direction >= 0 ? "100%" : "-100%";
   const endOffset = direction >= 0 ? "-100%" : "100%";
   const transition = `transform ${BAJA_SHOWCASE_SLIDE_MS}ms ${BAJA_SHOWCASE_SLIDE_EASE}`;
+  let finalizeRequested = false;
 
   const finalizeSlide = () => {
     if (slideToken !== bajaShowcaseState.slideToken) return;
-    bajaShowcaseCurrentImage.src = targetSrc;
-    resetBajaShowcaseSlidePositions();
-    bajaShowcaseState.isSliding = false;
-    preloadUpcomingBajaSlide();
+    if (finalizeRequested) return;
+    finalizeRequested = true;
+
+    const commitFinalize = () => {
+      if (slideToken !== bajaShowcaseState.slideToken) return;
+      resetBajaShowcaseSlidePositions();
+      bajaShowcaseState.isSliding = false;
+      preloadUpcomingBajaSlide();
+    };
+
+    const finishReady = () => {
+      cleanupCurrentListeners();
+      commitFinalize();
+    };
+
+    const finishError = () => {
+      cleanupCurrentListeners();
+      // If current layer fails, still commit to avoid getting stuck.
+      commitFinalize();
+    };
+
+    const decodeCurrentOrFinalize = () => {
+      if (typeof bajaShowcaseCurrentImage.decode === "function") {
+        bajaShowcaseCurrentImage
+          .decode()
+          .then(finishReady)
+          .catch(finishReady);
+        return;
+      }
+      finishReady();
+    };
+
+    const onCurrentLoad = () => {
+      decodeCurrentOrFinalize();
+    };
+
+    const onCurrentError = () => {
+      finishError();
+    };
+
+    const cleanupCurrentListeners = () => {
+      bajaShowcaseCurrentImage.removeEventListener("load", onCurrentLoad);
+      bajaShowcaseCurrentImage.removeEventListener("error", onCurrentError);
+    };
+
+    // Keep incoming slide visible while current layer switches source.
+    bajaShowcaseCurrentImage.style.transition = "none";
+    bajaShowcaseCurrentImage.style.opacity = "0";
+    if (bajaShowcaseCurrentImage.getAttribute("src") !== targetSrc) {
+      bajaShowcaseCurrentImage.src = targetSrc;
+    }
+
+    const isCurrentReady = bajaShowcaseCurrentImage.complete && bajaShowcaseCurrentImage.naturalWidth > 0;
+    if (isCurrentReady) {
+      decodeCurrentOrFinalize();
+      return;
+    }
+
+    bajaShowcaseCurrentImage.addEventListener("load", onCurrentLoad, { once: true });
+    bajaShowcaseCurrentImage.addEventListener("error", onCurrentError, { once: true });
   };
 
   const startSlideTransition = () => {
     if (slideToken !== bajaShowcaseState.slideToken) return;
     bajaShowcaseNextImage.style.visibility = "visible";
+    bajaShowcaseCurrentImage.style.opacity = "1";
+    bajaShowcaseNextImage.style.opacity = "1";
     bajaShowcaseCurrentImage.style.transition = "none";
     bajaShowcaseNextImage.style.transition = "none";
     bajaShowcaseCurrentImage.style.transform = "translateX(0)";
@@ -1695,21 +1761,22 @@ const renderBajaShowcaseSlide = ({ animate = false, direction = 1 } = {}) => {
   };
 
   if (bajaShowcaseNextImage.getAttribute("src") !== targetSrc) {
+    // Hide the incoming layer while changing source to prevent stale-frame flicker.
+    bajaShowcaseNextImage.style.visibility = "hidden";
     bajaShowcaseNextImage.src = targetSrc;
   }
 
-  const isNextImageReady = bajaShowcaseNextImage.complete && bajaShowcaseNextImage.naturalWidth > 0;
-  if (isNextImageReady) {
-    startSlideTransition();
-    return;
-  }
-
-  const onNextReady = () => {
+  let settled = false;
+  const settleReady = () => {
+    if (settled) return;
+    settled = true;
     cleanupListeners();
     startSlideTransition();
   };
 
-  const onNextError = () => {
+  const settleError = () => {
+    if (settled) return;
+    settled = true;
     cleanupListeners();
     if (slideToken !== bajaShowcaseState.slideToken) return;
     bajaShowcaseCurrentImage.src = targetSrc;
@@ -1717,10 +1784,35 @@ const renderBajaShowcaseSlide = ({ animate = false, direction = 1 } = {}) => {
     bajaShowcaseState.isSliding = false;
   };
 
+  const decodeOrStart = () => {
+    if (typeof bajaShowcaseNextImage.decode === "function") {
+      bajaShowcaseNextImage
+        .decode()
+        .then(settleReady)
+        .catch(settleReady);
+      return;
+    }
+    settleReady();
+  };
+
+  const onNextReady = () => {
+    decodeOrStart();
+  };
+
+  const onNextError = () => {
+    settleError();
+  };
+
   const cleanupListeners = () => {
     bajaShowcaseNextImage.removeEventListener("load", onNextReady);
     bajaShowcaseNextImage.removeEventListener("error", onNextError);
   };
+
+  const isNextImageReady = bajaShowcaseNextImage.complete && bajaShowcaseNextImage.naturalWidth > 0;
+  if (isNextImageReady) {
+    decodeOrStart();
+    return;
+  }
 
   bajaShowcaseNextImage.addEventListener("load", onNextReady, { once: true });
   bajaShowcaseNextImage.addEventListener("error", onNextError, { once: true });
@@ -1825,20 +1917,31 @@ modalRoot.className = "media-modal";
 modalRoot.innerHTML = `
   <div class="media-modal-backdrop" data-modal-close="true"></div>
   <div class="media-modal-panel" role="dialog" aria-modal="true" aria-label="Project details">
-    <button class="media-modal-close" type="button" aria-label="Close details" data-modal-close="true">x</button>
-    <h3 class="media-modal-title"></h3>
+    <div class="media-modal-header">
+      <h3 class="media-modal-title"></h3>
+      <button class="media-modal-close" type="button" aria-label="Close details" data-modal-close="true">&times;</button>
+    </div>
     <div class="media-modal-stage-wrap">
-      <button class="media-modal-stage-arrow media-modal-stage-arrow-prev" type="button" data-dir="-1" aria-label="Previous media">
+      <button class="media-modal-stage-arrow media-modal-stage-arrow-desktop media-modal-stage-arrow-prev" type="button" data-dir="-1" aria-label="Previous media">
         &#8249;
       </button>
       <div class="media-modal-stage"></div>
-      <button class="media-modal-stage-arrow media-modal-stage-arrow-next" type="button" data-dir="1" aria-label="Next media">
+      <button class="media-modal-stage-arrow media-modal-stage-arrow-desktop media-modal-stage-arrow-next" type="button" data-dir="1" aria-label="Next media">
+        &#8250;
+      </button>
+    </div>
+    <div class="media-modal-nav">
+      <button class="media-modal-stage-arrow media-modal-stage-arrow-mobile media-modal-stage-arrow-prev" type="button" data-dir="-1" aria-label="Previous media">
+        &#8249;
+      </button>
+      <span class="media-modal-counter media-modal-counter-mobile"></span>
+      <button class="media-modal-stage-arrow media-modal-stage-arrow-mobile media-modal-stage-arrow-next" type="button" data-dir="1" aria-label="Next media">
         &#8250;
       </button>
     </div>
     <div class="media-modal-controls">
       <div class="media-modal-mode-buttons" aria-label="Media mode"></div>
-      <span class="media-modal-counter"></span>
+      <span class="media-modal-counter media-modal-counter-desktop"></span>
     </div>
     <p class="media-modal-caption"></p>
     <p class="media-modal-description"></p>
@@ -1850,14 +1953,38 @@ document.body.appendChild(modalRoot);
 
 const modalTitle = modalRoot.querySelector(".media-modal-title");
 const modalStage = modalRoot.querySelector(".media-modal-stage");
-const modalStagePrevArrow = modalRoot.querySelector(".media-modal-stage-arrow-prev");
-const modalStageNextArrow = modalRoot.querySelector(".media-modal-stage-arrow-next");
+const modalStageArrows = Array.from(modalRoot.querySelectorAll(".media-modal-stage-arrow"));
 const modalModeButtons = modalRoot.querySelector(".media-modal-mode-buttons");
-const modalCounter = modalRoot.querySelector(".media-modal-counter");
+const modalCounters = Array.from(modalRoot.querySelectorAll(".media-modal-counter"));
 const modalCaption = modalRoot.querySelector(".media-modal-caption");
 const modalDescription = modalRoot.querySelector(".media-modal-description");
 const modalPoints = modalRoot.querySelector(".media-modal-points");
 const modalExtraActions = modalRoot.querySelector(".media-modal-extra-actions");
+const DEFAULT_MODAL_STAGE_RATIO = "16 / 9";
+const mobileModalViewportQuery = window.matchMedia("(max-width: 760px), (pointer: coarse)");
+
+const isMobileModalViewport = () => mobileModalViewportQuery.matches;
+
+const syncModalViewportModeClass = () => {
+  modalRoot.classList.toggle("is-mobile-view", isMobileModalViewport());
+};
+
+syncModalViewportModeClass();
+if (typeof mobileModalViewportQuery.addEventListener === "function") {
+  mobileModalViewportQuery.addEventListener("change", syncModalViewportModeClass);
+} else if (typeof mobileModalViewportQuery.addListener === "function") {
+  mobileModalViewportQuery.addListener(syncModalViewportModeClass);
+}
+
+const clampMediaAspectRatio = (ratio) => {
+  if (!Number.isFinite(ratio) || ratio <= 0) return DEFAULT_MODAL_STAGE_RATIO;
+  const clamped = clamp(ratio, 0.56, 2.4);
+  return clamped.toFixed(4);
+};
+
+const setModalStageAspectRatio = (ratioValue = DEFAULT_MODAL_STAGE_RATIO) => {
+  modalStage.style.setProperty("--modal-stage-ratio", ratioValue);
+};
 
 const isVideoExtension = (extension) => VIDEO_EXTENSIONS.includes(extension);
 const isImageExtension = (extension) => IMAGE_EXTENSIONS.includes(extension);
@@ -2714,15 +2841,17 @@ const renderModalSlide = () => {
   modalState.index = ((modalState.index % modalState.slides.length) + modalState.slides.length) % modalState.slides.length;
   const slide = modalState.slides[modalState.index];
   const hasMultipleSlides = modalState.slides.length > 1;
+  const isMobileModal = isMobileModalViewport();
+  syncModalViewportModeClass();
+  setModalStageAspectRatio(DEFAULT_MODAL_STAGE_RATIO);
 
-  if (modalStagePrevArrow) {
-    modalStagePrevArrow.style.display = hasMultipleSlides ? "grid" : "none";
-  }
-  if (modalStageNextArrow) {
-    modalStageNextArrow.style.display = hasMultipleSlides ? "grid" : "none";
-  }
+  modalStageArrows.forEach((arrow) => {
+    arrow.style.display = hasMultipleSlides ? "" : "none";
+  });
 
-  modalCounter.textContent = `${modalState.index + 1} / ${modalState.slides.length}`;
+  modalCounters.forEach((counter) => {
+    counter.textContent = `${modalState.index + 1} / ${modalState.slides.length}`;
+  });
   modalCaption.textContent = slide.caption ?? "";
   modalDescription.textContent = "";
   renderModalPoints(Array.isArray(slide.points) ? slide.points : modalState.defaultPoints);
@@ -2735,11 +2864,63 @@ const renderModalSlide = () => {
     video.controls = true;
     video.preload = "metadata";
     video.className = "media-modal-video";
+    if (isMobileModal) {
+      video.addEventListener(
+        "loadedmetadata",
+        () => {
+          const aspectRatio = video.videoWidth > 0 && video.videoHeight > 0 ? video.videoWidth / video.videoHeight : null;
+          setModalStageAspectRatio(clampMediaAspectRatio(aspectRatio));
+        },
+        { once: true },
+      );
+    }
     modalStage.appendChild(video);
+  } else if (slide.type === "external-link") {
+    const container = document.createElement("div");
+    container.className = "media-modal-external";
+
+    const warning = document.createElement("p");
+    warning.className = "media-modal-external-warning";
+    warning.textContent = slide.warning ?? "Recommended to view on desktop.";
+    container.appendChild(warning);
+
+    const link = document.createElement("a");
+    link.className = "media-modal-external-link";
+    link.href = slide.href ?? "#";
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = slide.label ?? "Open Demo";
+    container.appendChild(link);
+
+    modalStage.appendChild(container);
   } else if (slide.type === "embed") {
+    if (isMobileModal && slide.mobileFallback?.href) {
+      const container = document.createElement("div");
+      container.className = "media-modal-external";
+
+      const warning = document.createElement("p");
+      warning.className = "media-modal-external-warning";
+      warning.textContent = slide.mobileFallback.warning ?? "Recommended to view on desktop.";
+      container.appendChild(warning);
+
+      const link = document.createElement("a");
+      link.className = "media-modal-external-link";
+      link.href = slide.mobileFallback.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = slide.mobileFallback.label ?? "Open Demo";
+      container.appendChild(link);
+
+      modalStage.appendChild(container);
+      return;
+    }
+
     const iframe = document.createElement("iframe");
     iframe.src = slide.src;
     iframe.className = "media-modal-embed";
+    iframe.style.width = "100%";
+    iframe.style.height = "100%";
+    setModalStageAspectRatio(DEFAULT_MODAL_STAGE_RATIO);
     iframe.setAttribute("allow", "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
     iframe.setAttribute("allowfullscreen", "true");
     iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
@@ -2750,6 +2931,16 @@ const renderModalSlide = () => {
     img.src = slide.src;
     img.alt = slide.caption ?? "Project media";
     img.className = "media-modal-image";
+    if (isMobileModal) {
+      img.addEventListener(
+        "load",
+        () => {
+          const aspectRatio = img.naturalWidth > 0 && img.naturalHeight > 0 ? img.naturalWidth / img.naturalHeight : null;
+          setModalStageAspectRatio(clampMediaAspectRatio(aspectRatio));
+        },
+        { once: true },
+      );
+    }
     modalStage.appendChild(img);
   }
 };
@@ -2757,6 +2948,7 @@ const renderModalSlide = () => {
 const openProjectModal = async (projectKey) => {
   const project = projectIndex.get(projectKey);
   if (!project) return;
+  syncModalViewportModeClass();
 
   modalRoot.classList.add("is-open");
   modalRoot.setAttribute("data-project-key", projectKey);
@@ -2765,7 +2957,9 @@ const openProjectModal = async (projectKey) => {
   modalTitle.textContent = project.title;
   modalDescription.textContent = "";
   modalCaption.textContent = "";
-  modalCounter.textContent = "";
+  modalCounters.forEach((counter) => {
+    counter.textContent = "";
+  });
   modalStage.innerHTML = `<div class="media-modal-loading">Loading...</div>`;
   modalPoints.innerHTML = "";
   modalPoints.style.display = "none";

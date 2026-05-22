@@ -38,6 +38,120 @@ body {
   z-index: 0;
 }
 
+html.mobile-lite,
+body.mobile-lite {
+  height: auto;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: #000;
+}
+
+body.mobile-lite #scene,
+body.mobile-lite .loading-screen,
+body.mobile-lite .bottom-controls,
+body.mobile-lite .scroll-hint {
+  display: none !important;
+}
+
+body.mobile-lite .overlay {
+  position: relative;
+  inset: auto;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  pointer-events: auto;
+  background: #000;
+}
+
+body.mobile-lite .top-bar {
+  display: none;
+}
+
+body.mobile-lite .mobile-desktop-note {
+  display: block;
+  position: absolute;
+  top: clamp(4.25rem, 17dvh, 9rem);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  color: rgba(209, 223, 252, 0.86);
+  font-size: clamp(1rem, 3.8vw, 1.18rem);
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  text-align: center;
+  width: min(90vw, 34rem);
+}
+
+.mobile-desktop-note {
+  display: none;
+}
+
+body.mobile-lite .profile-panel {
+  justify-self: auto;
+  align-self: auto;
+  width: min(92vw, 28rem);
+  margin: 0;
+  transform: none;
+  text-align: center;
+  padding: 1.2rem 1rem;
+  border: 1px solid rgba(148, 180, 242, 0.3);
+  border-radius: 1rem;
+  background: rgba(6, 11, 22, 0.82);
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.5);
+}
+
+body.mobile-lite .profile-name {
+  font-size: clamp(2.1rem, 12vw, 3.35rem);
+}
+
+body.mobile-lite .profile-role {
+  font-size: clamp(1.15rem, 6vw, 1.7rem);
+}
+
+body.mobile-lite .profile-bio {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+body.mobile-lite .profile-links {
+  display: none;
+}
+
+body.mobile-lite .action-buttons,
+body.mobile-lite .action-buttons-secondary {
+  justify-content: center;
+}
+
+body.mobile-lite .action-buttons {
+  margin-top: 1rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.6rem;
+}
+
+body.mobile-lite .action-buttons-secondary {
+  margin-top: 0.6rem;
+}
+
+body.mobile-lite .resume-button {
+  width: 100%;
+  min-width: 0;
+  box-shadow: none;
+}
+
+body.mobile-lite .projects-button,
+body.mobile-lite .secondary-action-button {
+  box-shadow: none;
+}
+
+body.mobile-lite .resume-button:hover,
+body.mobile-lite .resume-button:focus-visible {
+  box-shadow: none;
+}
+
 .loading-screen {
   --loading-fade-ms: 500ms;
   position: fixed;

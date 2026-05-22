@@ -18,6 +18,8 @@
         <div class="brand">Personal Portfolio</div>
       </header>
 
+      <p class="mobile-desktop-note" aria-hidden="true">Recommended to view on desktop for the best experience</p>
+
       <section class="profile-panel" aria-label="Profile intro">
         <p class="profile-intro">Hello, I'm</p>
         <h1 class="profile-name">Laith Wattar</h1>
@@ -160,6 +162,17 @@
       </svg>
     </div>
 
-    <script type="module" src="/main.js"></script>
+    <script type="module">
+      const isMobileViewport = window.matchMedia("(max-width: 900px)").matches;
+      const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const useMobileLite = isMobileViewport || isCoarsePointer;
+
+      if (useMobileLite) {
+        document.documentElement.classList.add("mobile-lite");
+        document.body.classList.add("mobile-lite");
+      } else {
+        await import("/main.js");
+      }
+    </script>
   </body>
 </html>

@@ -565,7 +565,7 @@ body.modal-open {
   position: fixed;
   inset: 0;
   z-index: 20;
-  overflow-y: auto;
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   transition: opacity 220ms ease, visibility 0s linear 220ms;
@@ -595,6 +595,10 @@ body.modal-open {
   border-radius: 1rem;
   padding: 1rem;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+
+.media-modal-header {
+  position: relative;
 }
 
 .media-modal-close {
@@ -656,6 +660,10 @@ body.modal-open {
   outline: none;
 }
 
+.media-modal-nav {
+  display: none;
+}
+
 .media-modal-stage-arrow-prev {
   left: 0.7rem;
 }
@@ -688,6 +696,52 @@ body.modal-open {
   border: 0;
   display: block;
   background: #000;
+}
+
+.media-modal-external {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(42, 74, 130, 0.28), rgba(6, 10, 20, 0) 58%),
+    rgba(2, 7, 16, 0.92);
+}
+
+.media-modal-external-warning {
+  margin: 0;
+  color: #d2e1ff;
+  font-size: clamp(0.95rem, 2vw, 1.06rem);
+  line-height: 1.4;
+}
+
+.media-modal-external-link {
+  text-decoration: none;
+  color: var(--text-primary);
+  border: 1px solid rgba(198, 216, 250, 0.34);
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(135, 167, 228, 0.34), rgba(80, 106, 156, 0.3));
+  font-size: 0.96rem;
+  letter-spacing: 0.02em;
+  padding: 0.56rem 1.1rem;
+  min-height: 2.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.media-modal-external-link:hover,
+.media-modal-external-link:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(225, 235, 255, 0.6);
+  box-shadow: 0 0 18px rgba(114, 155, 235, 0.34);
+  outline: none;
 }
 
 .media-modal[data-project-key="lincoln-electric"] .media-modal-stage,
@@ -748,6 +802,153 @@ body.modal-open {
   text-align: center;
 }
 
+.media-modal-stage-arrow-desktop {
+  display: grid;
+}
+
+.media-modal-stage-arrow-mobile {
+  display: none;
+}
+
+.media-modal-counter-desktop {
+  display: inline;
+}
+
+.media-modal-counter-mobile {
+  display: none;
+}
+
+.media-modal.is-mobile-view .media-modal-panel {
+  width: 92vw;
+  margin: 0 auto;
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-top, 0) - env(safe-area-inset-bottom, 0));
+  padding: 0.72rem;
+  overflow-x: hidden;
+}
+
+.media-modal.is-mobile-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: calc(1rem + env(safe-area-inset-top, 0));
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0));
+}
+
+.media-modal.is-mobile-view .media-modal-header {
+  position: sticky;
+  top: env(safe-area-inset-top, 0);
+  z-index: 6;
+  margin: -0.15rem -0.1rem 0.34rem;
+  padding: 0.15rem 0.1rem 0.34rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.7rem;
+  background: linear-gradient(180deg, rgba(8, 14, 27, 0.98) 76%, rgba(8, 14, 27, 0));
+}
+
+.media-modal.is-mobile-view .media-modal-close {
+  position: relative;
+  flex: 0 0 auto;
+  top: auto;
+  right: auto;
+}
+
+.media-modal.is-mobile-view .media-modal-title {
+  margin: 0.2rem 0 0;
+  font-size: clamp(1rem, 4.6vw, 1.2rem);
+}
+
+.media-modal.is-mobile-view .media-modal-stage {
+  --modal-stage-ratio: 16 / 9;
+  aspect-ratio: var(--modal-stage-ratio);
+  min-height: 0;
+  max-height: 58svh;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.media-modal.is-mobile-view .media-modal-stage > * {
+  min-width: 0;
+  min-height: 0;
+}
+
+.media-modal.is-mobile-view .media-modal-image,
+.media-modal.is-mobile-view .media-modal-video {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-position: center center;
+  margin: 0 auto;
+}
+
+.media-modal.is-mobile-view .media-modal-embed {
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+}
+
+.media-modal.is-mobile-view .media-modal-stage-arrow-desktop {
+  display: none;
+}
+
+.media-modal.is-mobile-view .media-modal-stage-arrow-mobile {
+  position: static;
+  transform: none;
+  display: grid;
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 1.55rem;
+}
+
+.media-modal.is-mobile-view .media-modal-stage-arrow-mobile:hover,
+.media-modal.is-mobile-view .media-modal-stage-arrow-mobile:focus-visible {
+  transform: none;
+}
+
+.media-modal.is-mobile-view .media-modal-nav {
+  margin-top: 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.media-modal.is-mobile-view .media-modal-counter-desktop {
+  display: none;
+}
+
+.media-modal.is-mobile-view .media-modal-counter-mobile {
+  display: inline;
+  position: static;
+  transform: none;
+  min-width: 3rem;
+}
+
+.media-modal.is-mobile-view .media-modal-controls {
+  margin-top: 0.5rem;
+  min-height: 0;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.media-modal.is-mobile-view .media-modal-mode-buttons {
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.media-modal.is-mobile-view .media-modal-mode-button {
+  flex: 1 1 calc(50% - 0.2rem);
+  min-width: 0;
+  text-align: center;
+  padding: 0.46rem 0.78rem;
+}
+
 .media-modal-caption {
   margin: 0.7rem 0 0;
   color: #dbe7ff;
@@ -771,6 +972,15 @@ body.modal-open {
   gap: 0.34rem;
   font-size: 1.02rem;
   line-height: 1.46;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.media-modal-points li,
+.media-modal-caption,
+.media-modal-description {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .media-modal-extra-actions {
@@ -838,7 +1048,43 @@ body.modal-open {
   }
 }
 
+@media (max-width: 1100px) {
+  .projects-tabs {
+    justify-content: center;
+  }
+
+  .projects-tabs-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .projects-last-updated {
+    position: static;
+    right: auto;
+    top: auto;
+    transform: none;
+    text-align: center;
+    font-size: 0.76rem;
+    letter-spacing: 0.03em;
+    white-space: normal;
+  }
+}
+
 @media (max-width: 760px) {
+  .projects-panel {
+    --card-image-zoom: 1;
+  }
+
+  .project-image {
+    transform: none;
+  }
+
+  .project-card[data-project-key="custom-v-twin-motorcycle-engine"] .project-image {
+    transform: none;
+  }
+
   .projects-shell {
     width: 93vw;
   }
@@ -852,36 +1098,13 @@ body.modal-open {
     border-radius: 0.9rem;
     position: static;
     width: 100%;
+    justify-content: center;
   }
 
   .projects-last-updated {
-    display: none;
-  }
-
-  .media-modal-panel {
-    width: 92vw;
-    margin: 1rem auto;
-    max-height: calc(100vh - 1rem);
-    padding: 0.8rem;
-  }
-
-  .media-modal-stage {
-    height: auto;
-    aspect-ratio: 16 / 9;
-  }
-
-  .media-modal-stage-arrow {
-    width: 2.2rem;
-    height: 2.2rem;
-    font-size: 1.55rem;
-  }
-
-  .media-modal-stage-arrow-prev {
-    left: 0.45rem;
-  }
-
-  .media-modal-stage-arrow-next {
-    right: 0.45rem;
+    display: block;
+    width: 100%;
+    font-size: 0.74rem;
   }
 
   .baja-showcase-frame {
