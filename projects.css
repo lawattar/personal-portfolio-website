@@ -599,12 +599,10 @@ body.modal-open {
 
 .media-modal-header {
   position: relative;
+  margin: 0 0 0.7rem;
 }
 
 .media-modal-close {
-  position: absolute;
-  top: 0.6rem;
-  right: 0.8rem;
   border: 1px solid rgba(198, 216, 250, 0.22);
   border-radius: 999px;
   background: rgba(9, 15, 29, 0.8);
@@ -615,8 +613,25 @@ body.modal-open {
 }
 
 .media-modal-title {
-  margin: 0.2rem 0 0.7rem;
+  margin: 0;
   font-size: clamp(1.15rem, 2vw, 1.45rem);
+}
+
+.media-modal:not(.is-mobile-view) .media-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+}
+
+.media-modal:not(.is-mobile-view) .media-modal-close {
+  position: static;
+  flex: 0 0 auto;
+}
+
+.media-modal:not(.is-mobile-view) .media-modal-title {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .media-modal-stage {
