@@ -72,17 +72,14 @@ body.mobile-lite .top-bar {
 
 body.mobile-lite .mobile-desktop-note {
   display: block;
-  position: absolute;
-  top: clamp(4.25rem, 17dvh, 9rem);
-  left: 50%;
-  transform: translateX(-50%);
-  margin: 0;
+  position: static;
+  margin: 0.75rem 0 0;
   color: rgba(209, 223, 252, 0.86);
-  font-size: clamp(1rem, 3.8vw, 1.18rem);
+  font-size: clamp(0.92rem, 3.2vw, 1.06rem);
   letter-spacing: 0.02em;
   line-height: 1.35;
   text-align: center;
-  width: min(90vw, 34rem);
+  width: 100%;
 }
 
 .mobile-desktop-note {
