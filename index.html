@@ -169,10 +169,16 @@
       const userAgent = navigator.userAgent ?? "";
       const isMacDesktop = /mac/i.test(platform) || /mac os x/i.test(userAgent);
       const useMobileLite = isMobileViewport || isCoarsePointer || isMacDesktop;
+      const mobileDesktopNote = document.querySelector(".mobile-desktop-note");
 
       if (useMobileLite) {
         document.documentElement.classList.add("mobile-lite");
         document.body.classList.add("mobile-lite");
+        if (mobileDesktopNote) {
+          mobileDesktopNote.textContent = isMacDesktop
+            ? "Recommended to view on Windows desktop for the best experience"
+            : "Recommended to view on desktop for the best experience";
+        }
       } else {
         await import("/main.js");
       }
