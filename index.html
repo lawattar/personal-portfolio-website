@@ -165,7 +165,10 @@
     <script type="module">
       const isMobileViewport = window.matchMedia("(max-width: 900px)").matches;
       const isCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
-      const useMobileLite = isMobileViewport || isCoarsePointer;
+      const platform = navigator.userAgentData?.platform ?? navigator.platform ?? "";
+      const userAgent = navigator.userAgent ?? "";
+      const isMacDesktop = /mac/i.test(platform) || /mac os x/i.test(userAgent);
+      const useMobileLite = isMobileViewport || isCoarsePointer || isMacDesktop;
 
       if (useMobileLite) {
         document.documentElement.classList.add("mobile-lite");
